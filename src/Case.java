@@ -2,29 +2,43 @@ import java.awt.event.*;
 import java.awt.*;
 import javax.swing.*;
 
+/**
+ * Graphical User Interface (View)
+ * @author Rodrigo Balbino
+ * @version 0.0
+ */
+
 class Case extends JPanel implements MouseListener {
-    private String txt = "";  
+    private String txt;  
     private int row;
     private int col;
-    private final static int DIM = 40; 
+    private final static int DIM = 60; 
     private boolean leftClicked = false;
     private boolean rightClicked = false;
     private final Font customFont = new Font("Arial", Font.BOLD, 20);
     private static Champ champ;
     private static App app;
+    private static int countCase = 0;
 
-    public Case(String string, int row, int col, Champ champ, App app) {
+    public Case(int row, int col, Champ champ, App app) {
         this.champ = champ;
         this.app = app;
-        this.txt = string;
+        this.txt = " ";
         this.row = row;
         this.col = col;
-        
-        blockGeneralConfig();        
+
+        caseGeneralConfig();        
     }
 
+    public void countCases(){
+        countCase++;
+    }
 
-    public void blockGeneralConfig(){
+    public void resetCountCases(){
+        countCase = 0;
+    }
+
+    public void caseGeneralConfig(){
         setBackground(Color.green); 
         setBorder(BorderFactory.createLineBorder(Color.black));
         setPreferredSize(new Dimension(DIM, DIM)); 
@@ -52,17 +66,34 @@ class Case extends JPanel implements MouseListener {
     }
 
     public void paintLeftClicked(Graphics gc, int x, int y){
-        if (champ.isMine(row, col)) {
-            txt = "M";  
-            setBackground(Color.red);  
-            gc.setColor(Color.white); 
-            
-        } else {
-            txt = Integer.toString(champ.nbMinesAround(row, col)); 
-            setBackground(Color.lightGray);  
-            gc.setColor(Color.black);
-        }
+        if (champ.isMine(row, col)) 
+            paintLeftClickedIsMine(gc);
+        else 
+            paintLeftClickedIsNotMine(gc, x, y);
+        
         gc.drawString(txt, x, y); 
+    }
+
+
+    public void propagation(int row, int col){
+
+
+    }
+
+    public void paintLeftClickedIsMine(Graphics gc){
+        txt = "M";  
+        setBackground(Color.red);  
+        gc.setColor(Color.white); 
+    }
+
+    public void paintLeftClickedIsNotMine(Graphics gc, int x, int y){
+        int numberOfMines = champ.nbMinesAround(row, col);
+        txt = Integer.toString(numberOfMines); 
+
+        //if(numberOfMines == 0)
+        //propagation(x, y);
+        setBackground(Color.lightGray);  
+        gc.setColor(Color.black);
     }
 
     public void paintRightClicked(Graphics gc, int x, int y){
@@ -83,11 +114,13 @@ class Case extends JPanel implements MouseListener {
             if (!leftClicked) {  
                 leftClicked = true;  
                 rightClicked = false;
+                countCases();
+                
                 repaint();
 
-                if (champ.isMine(row, col)) {
-                    champ.game_over(app, this);
-                }             
+                verifyGameOver();   
+
+                verifyGameWon();
             }  
 
         } else if (SwingUtilities.isRightMouseButton(e)) {
@@ -96,6 +129,20 @@ class Case extends JPanel implements MouseListener {
                 repaint();
             }
         }
+    }
+
+    public void verifyGameOver(){
+        if (champ.isMine(row, col)) 
+            champ.game_over(app, this);
+    }
+
+    public void verifyGameWon(){
+        if(countCase == freeCases())                   
+            champ.game_won(app,this);
+    }
+
+    public int freeCases(){
+        return (champ.get_width()*champ.get_height()) - champ.get_numeroMines(champ.get_level());
     }
 
     public void mouseEntered (MouseEvent e) {}

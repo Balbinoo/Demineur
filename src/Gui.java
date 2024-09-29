@@ -7,7 +7,7 @@ import java.awt.*;
 
 /**
  * Graphical User Interface (View)
- * @author rod
+ * @author Rodrigo Balbino
  * @version 0.0
  */
 
@@ -101,7 +101,7 @@ public class Gui extends JPanel implements ActionListener {
     
         for (int i = 0; i < champ.get_width(); i++) {
             for (int j = 0; j < champ.get_height(); j++) {
-                    cas[i][j] = new Case(Integer.toString(champ.nbMinesAround(i, j)), i, j, champ, app);  
+                    cas[i][j] = new Case(i, j, champ, app);  
                 
                 panelMines.add(cas[i][j]);
             }

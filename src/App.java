@@ -2,7 +2,7 @@ import javax.swing.*;
 
 /**
  * Magnifique programme
- * @author  rod
+ * @author  Rodrigo Balbino
  * @version 0.0
  */
 public class App extends JFrame {
@@ -17,15 +17,16 @@ public class App extends JFrame {
     static JMenu x;
     static JMenuItem m1, m2, m3;
     static JFrame f;
+
  
      App() {
         super("Demineur");
         champ = new Champ();
-        int level = 0;
-        champ.init(0,0,level) ;
+        champ.set_level(0);
+        champ.init(0,0,champ.get_level());
         champ.display();
 
-        gui = new Gui(champ, this, level) ;
+        gui = new Gui(champ, this, champ.get_level());
 
         setContentPane(gui);
         pack() ;

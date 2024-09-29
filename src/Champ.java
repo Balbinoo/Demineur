@@ -5,7 +5,7 @@ import java.awt.*;
 
 /**
  * Magnifique programme
- * @author  rod
+ * @author  Rodrigo Balbino
  * @version 0.0
  */
 public class Champ {
@@ -14,6 +14,7 @@ public class Champ {
     private static  int DEF_WIDTH  = 0;
     private static  int DEF_HEIGHT  = 0;
     private final static  int DEF_NDMINES = 2 ;
+    private int level;
 
     Random random = new Random();
 
@@ -24,23 +25,33 @@ public class Champ {
         tabMines = new boolean[get_height()][get_width()];
     }
 
-    int get_height(){
+    public int get_height(){
             return tabSize[DEF_HEIGHT];
     }
 
-    int get_width(){
+    public int get_numeroMines(int level){
+        return tabNMines[level];
+    }
+
+    public int get_width(){
             return  tabSize[DEF_WIDTH];
     }
-    
 
-    void set_height(int level){
+    public void set_height(int level){
         DEF_HEIGHT = level;
-}
+    }
 
-    void set_width(int level){
+    public void set_width(int level){
         DEF_WIDTH = level;
     }
 
+    public int get_level(){
+        return level;
+    }
+
+    public void set_level(int newLevel){
+        level = newLevel;
+    }
 
      void init(int startX, int startY, int level) {
         System.out.println("Quel est le valeur  tabMines? "+tabMines.length);
@@ -49,10 +60,7 @@ public class Champ {
         System.out.println("tabSize é igual a"+tabSize[level]);
         System.out.println("TabNMines é igual a"+tabNMines[level]);
         
-
-        for (int n = tabNMines[level] ; n != 0; ) {
-            //int x = random.nextInt(tabMines.length);         
-            //int y = random.nextInt(tabMines[0].length);      
+        for (int n = tabNMines[level] ; n != 0; ) {  
             int x = random.nextInt(tabSize[level]);         
             int y = random.nextInt(tabSize[level]);    
 
@@ -70,7 +78,6 @@ public class Champ {
                     System.out.print('x');
                 else 
                     System.out.print(nbMinesAround(i, j));
-                //System.out.print(tabMines[i][j]== true  ? 'x' : '0');
             }
             System.out.println();
         }
@@ -92,13 +99,24 @@ public class Champ {
     }
     
 
-    public void end_game() {
+    public void game_won(App app, Case cas) {
+        int choice = JOptionPane.showOptionDialog(cas ,"Good Job", "You Won!", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, new String[]{"New Game", "Quit"}, "New Game"); 
+
+        if (choice == JOptionPane.YES_OPTION) {
+            cas.resetCountCases();
+            app.newPartie(0);
+            
+        } else if (choice == JOptionPane.NO_OPTION) {
+            app.quit();
+            System.exit(0);
+        }  
     }
 
     public void game_over(App app, Case cas) {
         int choice = JOptionPane.showOptionDialog(cas ,"You're a Loser!", "Game Over", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, new String[]{"New Game", "Quit"}, "New Game"); 
 
         if (choice == JOptionPane.YES_OPTION) {
+            cas.resetCountCases();
             app.newPartie(0);
             
         } else if (choice == JOptionPane.NO_OPTION) {
@@ -113,10 +131,7 @@ public class Champ {
 
     void newPartie(int level) {
             tabMines = new boolean[get_width()][get_height()] ;
-           // System.out.println("tabmines sizes:"+tabMines.length);
-            //System.out.println("tabmines[] sizes:"+tabMines[0].length);
-            init(1,1,level);
-        
+            init(1,1,level);        
             display();  
     }
    
