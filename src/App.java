@@ -10,14 +10,13 @@ public class App extends JFrame {
      * @param args
      * @throws Exception 
      */
+    private Case cas;
     private Champ champ;
-    private int score;  
     private Gui gui;
     static JMenuBar mb;
     static JMenu x;
     static JMenuItem m1, m2, m3;
     static JFrame f;
-
  
      App() {
         super("Demineur");
@@ -26,7 +25,7 @@ public class App extends JFrame {
         champ.init(0,0,champ.get_level());
         champ.display();
 
-        gui = new Gui(champ, this, champ.get_level());
+        gui = new Gui(champ, this);
 
         setContentPane(gui);
         pack() ;
@@ -46,8 +45,8 @@ public class App extends JFrame {
     }
 
     public void newPartie (int level) {
-        System.out.println("Selected level" + level);
-        score = 0;
+        //System.out.println("Selected level" + level);
+
         champ.set_height(level);
         champ.set_width(level);
         champ.newPartie(level); 

@@ -10,6 +10,7 @@ import java.awt.*;
  */
 public class Champ {
 
+    private int score;  
     static boolean [][] tabMines ;
     private static  int DEF_WIDTH  = 0;
     private static  int DEF_HEIGHT  = 0;
@@ -23,6 +24,14 @@ public class Champ {
 
     public Champ() {
         tabMines = new boolean[get_height()][get_width()];
+    }
+
+    public void countScore(){
+        score++;    
+    }
+
+    public int getCountScore(){
+        return score;    
     }
 
     public int get_height(){
@@ -54,11 +63,11 @@ public class Champ {
     }
 
      void init(int startX, int startY, int level) {
-        System.out.println("Quel est le valeur  tabMines? "+tabMines.length);
-        System.out.println("Quel est le valeur tabMines[0]? "+tabMines[0].length);        
-        System.out.println("tabMines[0].length é igual a " + tabMines[0].length);
-        System.out.println("tabSize é igual a"+tabSize[level]);
-        System.out.println("TabNMines é igual a"+tabNMines[level]);
+        //System.out.println("Quel est le valeur  tabMines? "+tabMines.length);
+        //System.out.println("Quel est le valeur tabMines[0]? "+tabMines[0].length);        
+        //System.out.println("tabMines[0].length é igual a " + tabMines[0].length);
+        //System.out.println("tabSize é igual a"+tabSize[level]);
+        //System.out.println("TabNMines é igual a"+tabNMines[level]);
         
         for (int n = tabNMines[level] ; n != 0; ) {  
             int x = random.nextInt(tabSize[level]);         
@@ -99,8 +108,10 @@ public class Champ {
     }
     
 
-    public void game_won(App app, Case cas) {
+    public void game_won(App app, Gui gui, Case cas) {
         int choice = JOptionPane.showOptionDialog(cas ,"Good Job", "You Won!", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, new String[]{"New Game", "Quit"}, "New Game"); 
+        this.countScore();
+        gui.setLabelScore(this.getCountScore());
 
         if (choice == JOptionPane.YES_OPTION) {
             cas.resetCountCases();
@@ -110,6 +121,7 @@ public class Champ {
             app.quit();
             System.exit(0);
         }  
+
     }
 
     public void game_over(App app, Case cas) {

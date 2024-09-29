@@ -9,18 +9,21 @@ import javax.swing.*;
  */
 
 class Case extends JPanel implements MouseListener {
+
     private String txt;  
     private int row;
     private int col;
     private final static int DIM = 60; 
     private boolean leftClicked = false;
     private boolean rightClicked = false;
-    private final Font customFont = new Font("Arial", Font.BOLD, 20);
+    private Gui gui;
+    //private JLabel label = new JLabel();
     private static Champ champ;
     private static App app;
     private static int countCase = 0;
 
-    public Case(int row, int col, Champ champ, App app) {
+    public Case(Gui gui, int row, int col, Champ champ, App app) {
+        this.gui = gui;
         this.champ = champ;
         this.app = app;
         this.txt = " ";
@@ -28,6 +31,22 @@ class Case extends JPanel implements MouseListener {
         this.col = col;
 
         caseGeneralConfig();        
+    }
+
+    public int getRow(){
+        return row;
+    }
+
+    public int getCol(){
+        return col;
+    }
+
+    public void setTxt(String newTxt){
+        txt = newTxt;
+    }
+
+    public String getTxt(){
+        return txt;
     }
 
     public void countCases(){
@@ -49,9 +68,9 @@ class Case extends JPanel implements MouseListener {
     public void paintComponent(Graphics gc) {
 
         super.paintComponent(gc);  
-        gc.setFont(customFont);  
+        gc.setFont(new Font("Arial", Font.BOLD, 20));  
         FontMetrics fm = gc.getFontMetrics();
-        int textWidth = fm.stringWidth(txt);
+        int textWidth = fm.stringWidth(getTxt());
         int textHeight = fm.getAscent();         
         int x = (getWidth() - textWidth) / 2;
         int y = (getHeight() + textHeight) / 2 - fm.getDescent(); 
@@ -62,50 +81,74 @@ class Case extends JPanel implements MouseListener {
             paintRightClicked(gc, x, y);
         else if (!rightClicked && !leftClicked)
             paintSecondRightClicked();        
-
     }
 
     public void paintLeftClicked(Graphics gc, int x, int y){
         if (champ.isMine(row, col)) 
-            paintLeftClickedIsMine(gc);
+            paintIsMine(gc);
         else 
-            paintLeftClickedIsNotMine(gc, x, y);
+            isNotMine(gc, getRow(), getCol());
         
-        gc.drawString(txt, x, y); 
+        gc.drawString(getTxt(), x, y); 
     }
 
-
-    public void propagation(int row, int col){
-
-
-    }
-
-    public void paintLeftClickedIsMine(Graphics gc){
-        txt = "M";  
+    public void paintIsMine(Graphics gc){
+        setTxt("M");
         setBackground(Color.red);  
         gc.setColor(Color.white); 
     }
 
-    public void paintLeftClickedIsNotMine(Graphics gc, int x, int y){
+    public void isNotMine(Graphics gc, int row, int col){
+        //System.out.println("Inside Paint 0 x :" + x + " y: " + y);
         int numberOfMines = champ.nbMinesAround(row, col);
-        txt = Integer.toString(numberOfMines); 
 
-        //if(numberOfMines == 0)
-        //propagation(x, y);
+        if(numberOfMines == 0)
+            propagation(getRow(), getCol(), gc);
+        else
+            paintIsNotMine(gc, numberOfMines);    
+    }
+
+    public void paintIsNotMine(Graphics gc, int numberOfMines){
         setBackground(Color.lightGray);  
         gc.setColor(Color.black);
+        setTxt(Integer.toString(numberOfMines));
+    }
+
+    public void propagation(int row, int col, Graphics gc){
+        //System.out.println("Do the propagation");
+        Case currentCase = this;
+        paintIsNotMine(gc, 0);  
+
+        for (int i = row - 1; i <= row + 1; i++) {
+            for (int j = col - 1; j <= col + 1; j++) {
+                if (i >= 0 && i < champ.get_width() && j >= 0 && j < champ.get_height()) {
+                    if (champ.isMine(i, j))
+                        continue;
+                        
+                        //Case currentCase2 = getCas();
+                       // Case currentCase = champ.cas[i][j];  // Assuming you have a 2D array of `Case` objects
+                            
+                // If there are no mines around this case, change its appearance
+                if (0 == champ.nbMinesAround(i, j)) {
+                    currentCase.setBackground(Color.lightGray);  // Change the background
+                    currentCase.setTxt("0");  // Update the text of the case
+                    currentCase.repaint();  // Request a repaint to reflect the changes
+                }
+              }
+            }
+        }
     }
 
     public void paintRightClicked(Graphics gc, int x, int y){
         setBackground(Color.magenta);  
-        txt = "F";  
+        setTxt("F");
         gc.setColor(Color.white);  
-        gc.drawString(txt, x, y); 
+        gc.drawString(getTxt(), x, y); 
     }
 
     public void paintSecondRightClicked(){
-        setBackground(Color.green);  
-        txt = "";  
+        setBackground(Color.green);    
+        setTxt(" ");
     }
     
     @Override
@@ -115,12 +158,9 @@ class Case extends JPanel implements MouseListener {
                 leftClicked = true;  
                 rightClicked = false;
                 countCases();
-                
                 repaint();
-
                 verifyGameOver();   
-
-                verifyGameWon();
+                verifyGameWon(gui);
             }  
 
         } else if (SwingUtilities.isRightMouseButton(e)) {
@@ -136,9 +176,9 @@ class Case extends JPanel implements MouseListener {
             champ.game_over(app, this);
     }
 
-    public void verifyGameWon(){
+    public void verifyGameWon(Gui gui){
         if(countCase == freeCases())                   
-            champ.game_won(app,this);
+            champ.game_won(app, gui, this);
     }
 
     public int freeCases(){

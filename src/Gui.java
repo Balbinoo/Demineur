@@ -18,50 +18,61 @@ public class Gui extends JPanel implements ActionListener {
     private JButton butQuit, butNew;
     private JComboBox levelComboBox;
     private Case cas[][];
-    private JLabel label = new JLabel();
-    JLabel labelScore = new JLabel("0");
-    JPanel panelMines = new JPanel();
+    private JPanel panelNorth = new JPanel();
+    private JPanel panelSouth = new JPanel();
+    private JMenu menuPartie = new JMenu("MenuBar");
+    private JMenuBar menuBar = new JMenuBar();
+    private JLabel label = new JLabel("Score");
+    private JLabel labelScore = new JLabel("0");
+    private JPanel panelMines = new JPanel();
     private JMenuItem mQuitter;
     private JMenuItem mNiveau;
 
-    Gui(Champ champ, App app, int level) {
-
-        JMenuBar menuBar = new JMenuBar();
-        JMenu menuPartie = new JMenu("MenuBar");
-        JLabel label = new JLabel("Score");
+    Gui(Champ champ, App app) {
 
         this.app = app;
         this.champ = champ;
 
-        menuBar.add(menuPartie);
-        app.setJMenuBar(menuBar);
-        cas = new Case[champ.get_width()][champ.get_height()];
-
         setLayout(new BorderLayout());
 
-        // add Menu option Quit
-        mQuitter = new JMenuItem("Quitter", KeyEvent.VK_Q);
-        menuPartie.add(mQuitter) ;
-        mQuitter.addActionListener(this);        
+        // MenuBar
+        configMenuBar();
 
-        // add button option Niveau
-        mNiveau = new JMenuItem("Niveau", KeyEvent.VK_Q);
-        menuPartie.add(mNiveau) ;
-        mNiveau.addActionListener(this);        
+        // MenuOption
+        configMenuOption();
   
         // panel north
-        JPanel panelNorth = new JPanel();
-        levelComboBox = new JComboBox<>(Level.values());
-        panelNorth.add(label);    
-        panelNorth.add(labelScore);
-        panelNorth.add(levelComboBox);
-        add(panelNorth, BorderLayout.NORTH);
+        configPainelNorth(label);
 
         // panel centre
         add(panelMines, BorderLayout.CENTER);
 
         // panel south
-        JPanel panelSouth = new JPanel();
+        configPainelSouth();
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == butQuit || e.getSource() == mQuitter) {
+            app.quit();
+            //System.out.println("La taille du champ est : " + champ.get_width());
+        } else if (e.getSource() == butNew || e.getSource() == mNiveau) {
+            app.newPartie(levelComboBox.getSelectedIndex());
+            //System.out.println("New game started!");
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    public void configPainelNorth(JLabel label){
+        levelComboBox = new JComboBox<>(Level.values());
+        panelNorth.add(label);    
+        panelNorth.add(labelScore);
+        panelNorth.add(levelComboBox);
+        add(panelNorth, BorderLayout.NORTH);
+    }
+
+    public void configPainelSouth(){
         panelSouth.setLayout(new FlowLayout()); 
         // Button quit
         butQuit = new JButton("Quit");
@@ -74,21 +85,25 @@ public class Gui extends JPanel implements ActionListener {
         add(panelSouth, BorderLayout.SOUTH);
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == butQuit || e.getSource() == mQuitter) {
-            app.quit();
-            System.out.println("La taille du champ est : " + champ.get_width());
-        } else if (e.getSource() == butNew || e.getSource() == mNiveau) {
-            app.newPartie(levelComboBox.getSelectedIndex());
-            System.out.println("New game started!");
-        } else {
-            throw new UnsupportedOperationException();
-        }
+    public void configMenuOption(){
+        // add Menu option Quit
+        mQuitter = new JMenuItem("Quitter", KeyEvent.VK_Q);
+        menuPartie.add(mQuitter) ;
+        mQuitter.addActionListener(this);        
+
+        // add Menu option New
+        mNiveau = new JMenuItem("New", KeyEvent.VK_Q);
+        menuPartie.add(mNiveau);
+        mNiveau.addActionListener(this);    
+    }
+
+    public void configMenuBar(){
+        menuBar.add(menuPartie);
+        app.setJMenuBar(menuBar);
     }
 
     public void newPartie(int level){
-        System.out.println("level value = " + level);
+        //System.out.println("level value = " + level);
         labelScore.setText("0");
         panelMines.removeAll();
         app.pack();
@@ -101,7 +116,7 @@ public class Gui extends JPanel implements ActionListener {
     
         for (int i = 0; i < champ.get_width(); i++) {
             for (int j = 0; j < champ.get_height(); j++) {
-                    cas[i][j] = new Case(i, j, champ, app);  
+                    cas[i][j] = new Case(this, i, j, champ, app);  
                 
                 panelMines.add(cas[i][j]);
             }
@@ -109,4 +124,13 @@ public class Gui extends JPanel implements ActionListener {
         app.pack();
     }
     
+    public Case[][] getCas(){
+        return cas;
+    }
+
+    public void setLabelScore(int score){
+        labelScore.setText(String.valueOf(score));
+        //add(panelNorth, BorderLayout.NORTH);
+    }
+
 }
