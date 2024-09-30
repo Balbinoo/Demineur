@@ -12,8 +12,8 @@ public class Champ {
 
     private int score;  
     static boolean [][] tabMines ;
-    private static  int DEF_WIDTH  = 0;
-    private static  int DEF_HEIGHT  = 0;
+    private static  int def_width  = 0;
+    private static  int def_height  = 0;
     private final static  int DEF_NDMINES = 2 ;
     private int level;
 
@@ -35,7 +35,7 @@ public class Champ {
     }
 
     public int get_height(){
-            return tabSize[DEF_HEIGHT];
+            return tabSize[def_height];
     }
 
     public int get_numeroMines(int level){
@@ -43,15 +43,15 @@ public class Champ {
     }
 
     public int get_width(){
-            return  tabSize[DEF_WIDTH];
+            return  tabSize[def_width];
     }
 
     public void set_height(int level){
-        DEF_HEIGHT = level;
+        def_height = level;
     }
 
     public void set_width(int level){
-        DEF_WIDTH = level;
+        def_width = level;
     }
 
     public int get_level(){
@@ -60,6 +60,11 @@ public class Champ {
 
     public void set_level(int newLevel){
         level = newLevel;
+    }
+
+    public void set_levelComboBox(int levelComboBox){
+        def_height = levelComboBox;
+        def_width = levelComboBox;
     }
 
      void init(int startX, int startY, int level) {
@@ -129,7 +134,7 @@ public class Champ {
 
         if (choice == JOptionPane.YES_OPTION) {
             cas.resetCountCases();
-            app.newPartie(0);
+            app.newPartie(this.get_level());
             
         } else if (choice == JOptionPane.NO_OPTION) {
             app.quit();
@@ -146,5 +151,5 @@ public class Champ {
             init(1,1,level);        
             display();  
     }
-   
+
 }

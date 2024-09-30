@@ -45,10 +45,13 @@ public class App extends JFrame {
     }
 
     public void newPartie (int level) {
-        //System.out.println("Selected level" + level);
+        System.out.println("Selected level" + level);
 
+        champ.set_level(level);
+        
         champ.set_height(level);
         champ.set_width(level);
+
         champ.newPartie(level); 
         gui.newPartie(level);
         gui.majPanelMines();

@@ -177,6 +177,9 @@ class Case extends JPanel implements MouseListener {
     }
 
     public void verifyGameWon(Gui gui){
+        System.out.println("FreeCases="+ freeCases()+ " has accually clicked ="+countCase);
+        System.out.println("numero de minas="+champ.get_numeroMines(champ.get_level()));
+        System.out.println("level="+champ.get_level());
         if(countCase == freeCases())                   
             champ.game_won(app, gui, this);
     }

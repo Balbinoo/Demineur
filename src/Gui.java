@@ -69,6 +69,7 @@ public class Gui extends JPanel implements ActionListener {
         panelNorth.add(label);    
         panelNorth.add(labelScore);
         panelNorth.add(levelComboBox);
+        System.out.println("level choisis "+levelComboBox);
         add(panelNorth, BorderLayout.NORTH);
     }
 
@@ -127,6 +128,8 @@ public class Gui extends JPanel implements ActionListener {
     public Case[][] getCas(){
         return cas;
     }
+
+
 
     public void setLabelScore(int score){
         labelScore.setText(String.valueOf(score));
