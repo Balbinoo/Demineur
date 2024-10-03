@@ -34,9 +34,9 @@ public class App extends JFrame {
         champ.set_level(0);
         champ.init(0,0,champ.get_level());
         champ.display();
-
         gui = new Gui(champ, cli, this);
-
+        revalidate();  
+        repaint();     
         setContentPane(gui);
         pack() ;
         setSize(400,400);

@@ -14,7 +14,11 @@ public class Client {
         System.out.println("Client created");
     }
 
-    public void connexion(){
+    public void connectServerBackground(){
+        new Thread(() -> initConnexion()).start();
+    }
+
+    public void initConnexion(){
         try {
             sock = new Socket("localhost", 10000);  
             out = new DataOutputStream(sock.getOutputStream());
