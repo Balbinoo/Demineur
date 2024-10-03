@@ -24,7 +24,7 @@ public class App extends JFrame {
      App() {
         super("Demineur");
         compt = new Compteur(1);  
-        champ = new Champ(compt);
+        champ = new Champ();
         serv = new Serveur();
         serv.startServerInBackground();
 
@@ -34,7 +34,7 @@ public class App extends JFrame {
         champ.set_level(0);
         champ.init(0,0,champ.get_level());
         champ.display();
-        gui = new Gui(champ, cli, this);
+        gui = new Gui(compt, champ, cli, this);
         revalidate();  
         repaint();     
         setContentPane(gui);
@@ -58,13 +58,16 @@ public class App extends JFrame {
         System.out.println("Selected level" + level);
 
         comp.resetScore();
+
+        comp.startCompteurBackground(gui);
+
         champ.set_level(level);
         champ.set_height(level);
         champ.set_width(level);
         champ.newPartie(level); 
         gui.newPartie(level);
         gui.majPanelMines();
-        //setSize(400,400);
+        //setSize(800,800);
        // comp.run();
 
     }

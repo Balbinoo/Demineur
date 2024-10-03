@@ -17,15 +17,16 @@ class Case extends JPanel implements MouseListener {
     private boolean leftClicked = false;
     private boolean rightClicked = false;
     private Gui gui;
-    //private JLabel label = new JLabel();
     private static Champ champ;
     private static App app;
+    private static Compteur comp;
     private static int countCase = 0;
 
-    public Case(Gui gui, int row, int col, Champ champ, App app) {
+    public Case(Gui gui, int row, int col, Champ champ, App app, Compteur comp) {
         this.gui = gui;
         this.champ = champ;
         this.app = app;
+        this.comp = comp;
         this.txt = " ";
         this.row = row;
         this.col = col;
@@ -159,8 +160,9 @@ class Case extends JPanel implements MouseListener {
                 rightClicked = false;
                 countCases();
                 repaint();
-                verifyGameOver();   
-                verifyGameWon(gui);
+                //verifyGameOver(gui);   
+                //verifyGameWon(gui);
+                verifyGameStatus(gui);
             }  
 
         } else if (SwingUtilities.isRightMouseButton(e)) {
@@ -171,17 +173,11 @@ class Case extends JPanel implements MouseListener {
         }
     }
 
-    public void verifyGameOver(){
+    public void verifyGameStatus(Gui gui){
         if (champ.isMine(row, col)) 
-            champ.game_over(app, gui, this);
-    }
-
-    public void verifyGameWon(Gui gui){
-        //System.out.println("FreeCases="+ freeCases()+ " has accually clicked ="+countCase);
-        //System.out.println("numero de minas="+champ.get_numeroMines(champ.get_level()));
-        //System.out.println("level="+champ.get_level());
+            champ.game_over(comp, app, gui, this);
         if(countCase == freeCases())                   
-            champ.game_won(app, gui, this);
+            champ.game_won(comp, app, gui, this);
     }
 
     public int freeCases(){

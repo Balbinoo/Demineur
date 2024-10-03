@@ -1,5 +1,4 @@
 public class Compteur implements Runnable {
-    private Thread processScores; 
     private boolean running;      
     private int score;            
     private int nbJoueurs;        
@@ -7,17 +6,28 @@ public class Compteur implements Runnable {
     Compteur(int nbJoueurs) {
         this.nbJoueurs = nbJoueurs;  
         this.score = 0;              
-        this.running = true;        
-        processScores = new Thread(this);
-        processScores.start();           
+        this.running = false;        
     }
 
-    public void run() {
+    public void startCompteurBackground(Gui gui){
+        if (!running) {  // Only start if not already running
+            running = true;
+            new Thread(() -> run(gui)).start();
+        }
+        
+    }
+
+    public void run(Gui gui) {
         while (running) {  
             try {
                 Thread.sleep(1000);  
                 score++;           
+                gui.setLabelScore(getScore());
+                //gui.revalidate();  
+                //gui.repaint(); 
                 System.out.println("Tempo: " + score + " segundos"); 
+                
+                
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

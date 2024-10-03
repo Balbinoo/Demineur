@@ -32,10 +32,11 @@ public class Gui extends JPanel implements ActionListener {
     private JPanel panelMines = new JPanel();
     private JMenuItem mQuitter, mNiveau, mBack, mGame;
 
-    Gui(Champ champ, Client cli, App app) {
+    Gui(Compteur comp, Champ champ, Client cli, App app) {
         this.app = app;
         this.champ = champ;
         this.cli = cli;
+        this.compt = comp;
 
         setLayout(new BorderLayout());
 
@@ -62,11 +63,11 @@ public class Gui extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == butQuit || e.getSource() == mQuitter) {
             app.quit();
-            //System.out.println("La taille du champ est : " + champ.get_width());
+
         } else if (e.getSource() == butNew || e.getSource() == mNiveau) {
             remove(panelCentre); 
             add(panelMines, BorderLayout.CENTER); 
-            app.newPartie(levelComboBox.getSelectedIndex(), champ.get_Compt());
+            app.newPartie(levelComboBox.getSelectedIndex(), compt);
             revalidate();  
             repaint();        
 
@@ -76,10 +77,12 @@ public class Gui extends JPanel implements ActionListener {
 
         }  else if(e.getSource() == butBack || e.getSource() == mBack){
             System.out.println("Clicked back button");
+            //compt.stop();
             remove(panelMines); 
             add(panelCentre, BorderLayout.CENTER);         
             revalidate();  
             repaint(); 
+
         } else if(e.getSource() == mGame){
             String message = "The Minesweeper game was created by Rodrigo Balbino \n         for his final projet in Advanced Java Class";
             JOptionPane.showMessageDialog(this, message, "Game Info", JOptionPane.INFORMATION_MESSAGE);
@@ -89,6 +92,7 @@ public class Gui extends JPanel implements ActionListener {
     }
 
     public void configPainelNorth(JLabel label){
+        // add combobox and score
         levelComboBox = new JComboBox<>(Level.values());
         panelNorth.add(label);    
         panelNorth.add(labelScore);
@@ -97,13 +101,41 @@ public class Gui extends JPanel implements ActionListener {
         add(panelNorth, BorderLayout.NORTH);
     }
 
+/*
     public void configPainelCentre() {
+        // add conexion button
         panelCentre.setLayout(new FlowLayout(FlowLayout.CENTER)); 
         butConnexion = new JButton("Connexion");
         butConnexion.addActionListener(this);    
         panelCentre.add(butConnexion);  
         add(panelCentre, BorderLayout.CENTER);  
+
+        String message = " Welcome to the Demineur";
+    }*/
+
+    public void configPainelCentre() {
+        // Set up panelCentre with BoxLayout to stack components vertically
+        panelCentre.setLayout(new BoxLayout(panelCentre, BoxLayout.Y_AXIS));
+    
+        // Create a JLabel for the message
+        JLabel welcomeLabel = new JLabel("Welcome to the Demineur");
+        welcomeLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT); // Center the label horizontally
+    
+        // Create the Connexion button
+        butConnexion = new JButton("Connexion");
+        butConnexion.setAlignmentX(JButton.CENTER_ALIGNMENT); // Center the button horizontally
+        butConnexion.addActionListener(this);
+    
+        // Add some vertical spacing between the message and the button
+        panelCentre.add(Box.createVerticalStrut(20));  // 20px space before the label
+        panelCentre.add(welcomeLabel);  // Add the message
+        panelCentre.add(Box.createVerticalStrut(10));  // 10px space between the label and the button
+        panelCentre.add(butConnexion);  // Add the button
+    
+        // Add panelCentre to the frame
+        add(panelCentre, BorderLayout.CENTER);
     }
+    
     
     public void configPainelSouth(){
         panelSouth.setLayout(new FlowLayout()); 
@@ -172,7 +204,7 @@ public class Gui extends JPanel implements ActionListener {
     
         for (int i = 0; i < champ.get_width(); i++) {
             for (int j = 0; j < champ.get_height(); j++) {
-                    cas[i][j] = new Case(this, i, j, champ, app);  
+                    cas[i][j] = new Case(this, i, j, champ, app, compt);  
                 
                 panelMines.add(cas[i][j]);
             }
