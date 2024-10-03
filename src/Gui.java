@@ -25,7 +25,7 @@ public class Gui extends JPanel implements ActionListener {
     private JPanel panelCentre = new JPanel();
     private JPanel panelNorth = new JPanel();
     private JPanel panelSouth = new JPanel();
-    private JMenu menuPartie = new JMenu("MenuBar");
+    private JMenu menuPartie = new JMenu("Menu");
     private JMenu menuAbout = new JMenu("About");
     private JMenuBar menuBar = new JMenuBar();
     private JLabel label = new JLabel("Score");
@@ -67,37 +67,34 @@ public class Gui extends JPanel implements ActionListener {
         if (e.getSource() == butQuit || e.getSource() == mQuitter) {
             app.quit();
 
-        } else if (e.getSource() == butNew || e.getSource() == mNiveau) {
-            remove(panelCentre); 
-
-            System.out.println("ca.get_countCase()"+ ca.get_countCase());
-            ca.resetCountCases();  
+        } else if (e.getSource() == butNew || e.getSource() == mNiveau) { 
+            remove(panelCentre);
             add(panelMines, BorderLayout.CENTER); 
             app.newPartie(levelComboBox.getSelectedIndex(), compt);
-            revalidate();  
-            repaint();        
+            resetGui();
 
         } else if(e.getSource() == butConnexion){
-            System.out.println("Conexion button clicked");
             cli.connectServerBackground();
 
         }  else if(e.getSource() == butBack || e.getSource() == mBack){
-            System.out.println("Clicked back button");
-
-            ca.resetCountCases();  
-            compt.stop();
-            compt.resetScore();
             remove(panelMines); 
-            add(panelCentre, BorderLayout.CENTER);         
-            revalidate();  
-            repaint(); 
-
+            add(panelCentre, BorderLayout.CENTER);    
+            resetGui();
+            
         } else if(e.getSource() == mGame){
             String message = "The Minesweeper game was created by Rodrigo Balbino \n         for his final projet in Advanced Java Class";
             JOptionPane.showMessageDialog(this, message, "Game Info", JOptionPane.INFORMATION_MESSAGE);
         } else {
             throw new UnsupportedOperationException();
         }
+    }
+
+    public void resetGui(){
+        compt.stop();
+        ca.resetCountCases();  
+        compt.resetScore();
+        revalidate();  
+        repaint(); 
     }
 
     public void configPainelNorth(JLabel label){
@@ -114,15 +111,17 @@ public class Gui extends JPanel implements ActionListener {
     public void configPainelCentre() {
 
         panelCentre.setLayout(new BoxLayout(panelCentre, BoxLayout.Y_AXIS));
-    
+        // add Message
         JLabel welcomeLabel = new JLabel("Welcome to the Demineur");
         welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24)); 
         welcomeLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT); 
     
+        // add button connexion
         butConnexion = new JButton("Connexion");
         butConnexion.setAlignmentX(JButton.CENTER_ALIGNMENT);
         butConnexion.addActionListener(this);
     
+        // add space between items
         panelCentre.add(Box.createVerticalStrut(60));  
         panelCentre.add(welcomeLabel); 
         panelCentre.add(Box.createVerticalStrut(50));  
@@ -152,13 +151,15 @@ public class Gui extends JPanel implements ActionListener {
         add(panelSouth, BorderLayout.SOUTH);
     }
 
+    public void configMenuBar(){
+        menuBar.add(menuPartie);
+        menuBar.add(menuAbout);
+
+        app.setJMenuBar(menuBar);
+    }
+
     public void configMenuPartie(){
         
-        // add Menu option Quit
-        mQuitter = new JMenuItem("Quitter", KeyEvent.VK_Q);
-        menuPartie.add(mQuitter) ;
-        mQuitter.addActionListener(this);        
-
         // add Menu option New
         mNiveau = new JMenuItem("New", KeyEvent.VK_W);
         menuPartie.add(mNiveau);
@@ -169,6 +170,11 @@ public class Gui extends JPanel implements ActionListener {
         menuPartie.add(mBack);
         mBack.addActionListener(this);  
 
+        // add Menu option Quit
+        mQuitter = new JMenuItem("Quitter", KeyEvent.VK_Q);
+        menuPartie.add(mQuitter) ;
+        mQuitter.addActionListener(this);        
+
     }
 
     public void configMenuAbout(){
@@ -178,15 +184,8 @@ public class Gui extends JPanel implements ActionListener {
         mGame.addActionListener(this);  
     }
 
-    public void configMenuBar(){
-        menuBar.add(menuPartie);
-        menuBar.add(menuAbout);
-
-        app.setJMenuBar(menuBar);
-    }
 
     public void newPartie(int level){
-        //System.out.println("level value = " + level);
         labelScore.setText("0");
         panelMines.removeAll();
         app.pack();
@@ -217,4 +216,8 @@ public class Gui extends JPanel implements ActionListener {
         app.pack();
     }
 
+    public int showOptionDialog(Case cas, String title, String message, String type){
+
+        return JOptionPane.showOptionDialog(cas, message, title,JOptionPane.YES_NO_OPTION, type.equals("info") ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE, null, new String[]{"New Game", "Quit"}, "New Game");
+    }
 }

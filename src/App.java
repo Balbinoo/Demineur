@@ -60,7 +60,6 @@ public class App extends JFrame {
         //System.out.println("Selected level" + level);
 
         comp.resetScore();
-
         comp.startCompteurBackground(gui);
         
         champ.set_level(level);

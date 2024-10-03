@@ -10,7 +10,7 @@ public class Compteur implements Runnable {
     }
 
     public void startCompteurBackground(Gui gui){
-        if (!running) {  // Only start if not already running
+        if (!running) {
             running = true;
             new Thread(() -> run(gui)).start();
         }
@@ -33,7 +33,6 @@ public class Compteur implements Runnable {
 
     public void stop() {
         running = false;
-        //System.out.println("Score final"+ getScore());
     }
 
     public int getScore() {

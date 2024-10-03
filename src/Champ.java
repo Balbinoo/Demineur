@@ -14,8 +14,8 @@ public class Champ {
     static boolean [][] tabMines ;
     private static  int def_width  = 0;
     private static  int def_height  = 0;
-    private final static  int DEF_NDMINES = 2 ;
-    private Compteur compt;
+    //private final static  int DEF_NDMINES = 2 ;
+    //private Compteur compt;
     private int level = 0;
 
     Random random = new Random();
@@ -113,33 +113,28 @@ public class Champ {
           
         resetGame( gui, comp, cas);
         
-        int choice = JOptionPane.showOptionDialog(cas ,"Good Job", "You Won!", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, new String[]{"New Game", "Quit"}, "New Game"); 
+        int choice = gui.showOptionDialog(cas, "You Won!", "Good Job", "info");
 
-        if (choice == JOptionPane.YES_OPTION) {
-            cas.resetCountCases();
+        if (choice == JOptionPane.YES_OPTION) 
             app.newPartie(this.get_level(), comp);
             
-        } else if (choice == JOptionPane.NO_OPTION) {
+        else if (choice == JOptionPane.NO_OPTION) 
             app.quit();
-            System.exit(0);
-        }  
+         
     }
 
     public void game_over(Compteur comp, App app, Gui gui, Case cas) {
 
         resetGame( gui, comp, cas);
 
-        int choice = JOptionPane.showOptionDialog(cas ,"You're a Loser!", "Game Over", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, new String[]{"New Game", "Quit"}, "New Game"); 
+        int choice = gui.showOptionDialog(cas,  "Game Over","You're a Loser!", "Lose");
         
-        if (choice == JOptionPane.YES_OPTION) {
-            
-            cas.resetCountCases();
+        if (choice == JOptionPane.YES_OPTION)
             app.newPartie(this.get_level(), comp);
             
-        } else if (choice == JOptionPane.NO_OPTION) {
+        else if (choice == JOptionPane.NO_OPTION) 
             app.quit();
-            System.exit(0);
-        }
+        
     }
 
     public void resetGame(Gui gui, Compteur comp, Case cas){

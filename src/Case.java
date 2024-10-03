@@ -106,7 +106,6 @@ class Case extends JPanel implements MouseListener {
     }
 
     public void isNotMine(Graphics gc, int row, int col){
-        //System.out.println("Inside Paint 0 x :" + x + " y: " + y);
         int numberOfMines = champ.nbMinesAround(row, col);
 
         if(numberOfMines == 0)
@@ -173,8 +172,7 @@ class Case extends JPanel implements MouseListener {
                 rightClicked = false;
                 countCases();
                 repaint();
-                //verifyGameOver(gui);   
-                //verifyGameWon(gui);
+
                 verifyGameStatus(gui);
             }  
 
