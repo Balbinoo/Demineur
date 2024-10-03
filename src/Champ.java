@@ -15,6 +15,7 @@ public class Champ {
     private static  int def_width  = 0;
     private static  int def_height  = 0;
     private final static  int DEF_NDMINES = 2 ;
+    private Compteur compt;
     private int level;
 
     Random random = new Random();
@@ -22,8 +23,13 @@ public class Champ {
     private int [] tabSize = {5,10,30} ;
     private int [] tabNMines = {3,7,9} ;
 
-    public Champ() {
+    public Champ(Compteur comp) {
         tabMines = new boolean[get_height()][get_width()];
+        this.compt = comp;
+    }
+
+    public Compteur get_Compt(){
+        return compt;
     }
 
     public void countScore(){
@@ -115,26 +121,31 @@ public class Champ {
 
     public void game_won(App app, Gui gui, Case cas) {
         int choice = JOptionPane.showOptionDialog(cas ,"Good Job", "You Won!", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, new String[]{"New Game", "Quit"}, "New Game"); 
-        this.countScore();
-        gui.setLabelScore(this.getCountScore());
-
+        //this.countScore();
+        this.compt.stop();
+        gui.setLabelScore(compt.getScore());
         if (choice == JOptionPane.YES_OPTION) {
             cas.resetCountCases();
-            app.newPartie(0);
+            app.newPartie(this.get_level(), this.get_Compt());
             
         } else if (choice == JOptionPane.NO_OPTION) {
             app.quit();
             System.exit(0);
         }  
-
     }
 
-    public void game_over(App app, Case cas) {
-        int choice = JOptionPane.showOptionDialog(cas ,"You're a Loser!", "Game Over", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, new String[]{"New Game", "Quit"}, "New Game"); 
+    public void game_over(App app, Gui gui, Case cas) {
 
+        System.out.println("Dedans gameover score="+ this.compt.getScore());
+        this.compt.stop();
+        gui.setLabelScore(compt.getScore());
+
+        int choice = JOptionPane.showOptionDialog(cas ,"You're a Loser!", "Game Over", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, new String[]{"New Game", "Quit"}, "New Game"); 
+        
         if (choice == JOptionPane.YES_OPTION) {
+            
             cas.resetCountCases();
-            app.newPartie(this.get_level());
+            app.newPartie(this.get_level(), this.get_Compt());
             
         } else if (choice == JOptionPane.NO_OPTION) {
             app.quit();

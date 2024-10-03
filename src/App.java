@@ -12,20 +12,30 @@ public class App extends JFrame {
      */
     private Case cas;
     private Champ champ;
+    private Compteur compt;
     private Gui gui;
     static JMenuBar mb;
     static JMenu x;
     static JMenuItem m1, m2, m3;
     static JFrame f;
- 
+    private Serveur serv;
+    private Client cli;
+
      App() {
         super("Demineur");
-        champ = new Champ();
+        compt = new Compteur(1);  
+        champ = new Champ(compt);
+        serv = new Serveur();
+        serv.startServerInBackground();
+
+        //serv.initServer();
+
+        cli = new Client();
         champ.set_level(0);
         champ.init(0,0,champ.get_level());
         champ.display();
 
-        gui = new Gui(champ, this);
+        gui = new Gui(champ, cli, this);
 
         setContentPane(gui);
         pack() ;
@@ -44,18 +54,19 @@ public class App extends JFrame {
         System.exit(0);
     }
 
-    public void newPartie (int level) {
+    public void newPartie (int level, Compteur comp) {
         System.out.println("Selected level" + level);
 
+        comp.resetScore();
         champ.set_level(level);
-        
         champ.set_height(level);
         champ.set_width(level);
-
         champ.newPartie(level); 
         gui.newPartie(level);
         gui.majPanelMines();
-        setSize(400,400);
+        //setSize(400,400);
+       // comp.run();
+
     }
     
 }
