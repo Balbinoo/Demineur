@@ -26,15 +26,17 @@ public class App extends JFrame {
         compt = new Compteur(1);  
         champ = new Champ();
         serv = new Serveur();
+        cas = new Case();
         serv.startServerInBackground();
 
         //serv.initServer();
 
         cli = new Client();
-        champ.set_level(0);
-        champ.init(0,0,champ.get_level());
-        champ.display();
-        gui = new Gui(compt, champ, cli, this);
+        //champ.set_level(0);
+        //champ.init(0,0,champ.get_level());
+        //champ.display();
+        gui = new Gui(cas, compt, champ, cli, this);
+
         revalidate();  
         repaint();     
         setContentPane(gui);
@@ -55,12 +57,12 @@ public class App extends JFrame {
     }
 
     public void newPartie (int level, Compteur comp) {
-        System.out.println("Selected level" + level);
+        //System.out.println("Selected level" + level);
 
         comp.resetScore();
 
         comp.startCompteurBackground(gui);
-
+        
         champ.set_level(level);
         champ.set_height(level);
         champ.set_width(level);

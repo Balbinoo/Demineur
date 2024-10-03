@@ -16,7 +16,7 @@ public class Champ {
     private static  int def_height  = 0;
     private final static  int DEF_NDMINES = 2 ;
     private Compteur compt;
-    private int level;
+    private int level = 0;
 
     Random random = new Random();
 
@@ -69,11 +69,6 @@ public class Champ {
     }
 
      void init(int startX, int startY, int level) {
-        //System.out.println("Quel est le valeur  tabMines? "+tabMines.length);
-        //System.out.println("Quel est le valeur tabMines[0]? "+tabMines[0].length);        
-        //System.out.println("tabMines[0].length é igual a " + tabMines[0].length);
-        //System.out.println("tabSize é igual a"+tabSize[level]);
-        //System.out.println("TabNMines é igual a"+tabNMines[level]);
         
         for (int n = tabNMines[level] ; n != 0; ) {  
             int x = random.nextInt(tabSize[level]);         
@@ -116,11 +111,7 @@ public class Champ {
 
     public void game_won(Compteur comp, App app, Gui gui, Case cas) {
           
-        comp.stop();
-        gui.setLabelScore(comp.getScore());
-        gui.revalidate();  
-        gui.repaint(); 
-        System.out.println("Dedans WON score="+ comp.getScore());
+        resetGame( gui, comp, cas);
         
         int choice = JOptionPane.showOptionDialog(cas ,"Good Job", "You Won!", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, new String[]{"New Game", "Quit"}, "New Game"); 
 
@@ -136,12 +127,7 @@ public class Champ {
 
     public void game_over(Compteur comp, App app, Gui gui, Case cas) {
 
-        comp.stop();
-        gui.setLabelScore(comp.getScore());
-        gui.revalidate();  
-        gui.repaint(); 
-        
-        System.out.println("Dedans LOST score="+ comp.getScore());
+        resetGame( gui, comp, cas);
 
         int choice = JOptionPane.showOptionDialog(cas ,"You're a Loser!", "Game Over", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, new String[]{"New Game", "Quit"}, "New Game"); 
         
@@ -156,14 +142,20 @@ public class Champ {
         }
     }
 
+    public void resetGame(Gui gui, Compteur comp, Case cas){
+        comp.stop();
+        cas.resetCountCases();
+        gui.setLabelScore(comp.getScore());
+        gui.revalidate();  
+        gui.repaint(); 
+    }
+
     boolean isMine (int x , int y){
         return tabMines[x][y] ;
     }
 
     void newPartie(int level) {
-            tabMines = new boolean[get_width()][get_height()] ;
-            init(1,1,level);        
-            display();  
+            tabMines = new boolean[get_width()][get_height()] ;  
     }
 
 }

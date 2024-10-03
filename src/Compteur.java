@@ -14,7 +14,6 @@ public class Compteur implements Runnable {
             running = true;
             new Thread(() -> run(gui)).start();
         }
-        
     }
 
     public void run(Gui gui) {
@@ -24,9 +23,7 @@ public class Compteur implements Runnable {
                 score++;           
                 gui.setLabelScore(getScore());
                 //gui.revalidate();  
-                //gui.repaint(); 
-                System.out.println("Tempo: " + score + " segundos"); 
-                
+                //gui.repaint();                 
                 
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -36,7 +33,7 @@ public class Compteur implements Runnable {
 
     public void stop() {
         running = false;
-        System.out.println("Score final"+ getScore());
+        //System.out.println("Score final"+ getScore());
     }
 
     public int getScore() {

@@ -17,6 +17,7 @@ public class Gui extends JPanel implements ActionListener {
     private App app;
     private Champ champ;
     private Compteur compt;
+    private Case ca;
     private Client cli;
     private JButton butQuit, butNew, butConnexion, butBack;
     private JComboBox levelComboBox;
@@ -32,11 +33,13 @@ public class Gui extends JPanel implements ActionListener {
     private JPanel panelMines = new JPanel();
     private JMenuItem mQuitter, mNiveau, mBack, mGame;
 
-    Gui(Compteur comp, Champ champ, Client cli, App app) {
+    Gui(Case cases, Compteur comp, Champ champ, Client cli, App app) {
+
         this.app = app;
         this.champ = champ;
         this.cli = cli;
         this.compt = comp;
+        this.ca = cases;
 
         setLayout(new BorderLayout());
 
@@ -66,6 +69,9 @@ public class Gui extends JPanel implements ActionListener {
 
         } else if (e.getSource() == butNew || e.getSource() == mNiveau) {
             remove(panelCentre); 
+
+            System.out.println("ca.get_countCase()"+ ca.get_countCase());
+            ca.resetCountCases();  
             add(panelMines, BorderLayout.CENTER); 
             app.newPartie(levelComboBox.getSelectedIndex(), compt);
             revalidate();  
@@ -77,7 +83,10 @@ public class Gui extends JPanel implements ActionListener {
 
         }  else if(e.getSource() == butBack || e.getSource() == mBack){
             System.out.println("Clicked back button");
-            //compt.stop();
+
+            ca.resetCountCases();  
+            compt.stop();
+            compt.resetScore();
             remove(panelMines); 
             add(panelCentre, BorderLayout.CENTER);         
             revalidate();  
@@ -97,42 +106,28 @@ public class Gui extends JPanel implements ActionListener {
         panelNorth.add(label);    
         panelNorth.add(labelScore);
         panelNorth.add(levelComboBox);
-        System.out.println("level choisis "+levelComboBox);
+        System.out.println("level choisis "+levelComboBox.getSelectedItem());
         add(panelNorth, BorderLayout.NORTH);
     }
 
-/*
-    public void configPainelCentre() {
-        // add conexion button
-        panelCentre.setLayout(new FlowLayout(FlowLayout.CENTER)); 
-        butConnexion = new JButton("Connexion");
-        butConnexion.addActionListener(this);    
-        panelCentre.add(butConnexion);  
-        add(panelCentre, BorderLayout.CENTER);  
-
-        String message = " Welcome to the Demineur";
-    }*/
 
     public void configPainelCentre() {
-        // Set up panelCentre with BoxLayout to stack components vertically
+
         panelCentre.setLayout(new BoxLayout(panelCentre, BoxLayout.Y_AXIS));
     
-        // Create a JLabel for the message
         JLabel welcomeLabel = new JLabel("Welcome to the Demineur");
-        welcomeLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT); // Center the label horizontally
+        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24)); 
+        welcomeLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT); 
     
-        // Create the Connexion button
         butConnexion = new JButton("Connexion");
-        butConnexion.setAlignmentX(JButton.CENTER_ALIGNMENT); // Center the button horizontally
+        butConnexion.setAlignmentX(JButton.CENTER_ALIGNMENT);
         butConnexion.addActionListener(this);
     
-        // Add some vertical spacing between the message and the button
-        panelCentre.add(Box.createVerticalStrut(20));  // 20px space before the label
-        panelCentre.add(welcomeLabel);  // Add the message
-        panelCentre.add(Box.createVerticalStrut(10));  // 10px space between the label and the button
-        panelCentre.add(butConnexion);  // Add the button
+        panelCentre.add(Box.createVerticalStrut(60));  
+        panelCentre.add(welcomeLabel); 
+        panelCentre.add(Box.createVerticalStrut(50));  
+        panelCentre.add(butConnexion);  
     
-        // Add panelCentre to the frame
         add(panelCentre, BorderLayout.CENTER);
     }
     

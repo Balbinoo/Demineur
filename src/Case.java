@@ -10,17 +10,19 @@ import javax.swing.*;
 
 class Case extends JPanel implements MouseListener {
 
-    private String txt;  
-    private int row;
-    private int col;
-    private final static int DIM = 60; 
-    private boolean leftClicked = false;
-    private boolean rightClicked = false;
-    private Gui gui;
     private static Champ champ;
     private static App app;
     private static Compteur comp;
     private static int countCase = 0;
+    private final static int DIM = 60; 
+    private String txt;  
+    private int row;
+    private int col;
+    private boolean leftClicked = false;
+    private boolean rightClicked = false;
+    private Gui gui;
+
+    public Case(){}
 
     public Case(Gui gui, int row, int col, Champ champ, App app, Compteur comp) {
         this.gui = gui;
@@ -52,6 +54,10 @@ class Case extends JPanel implements MouseListener {
 
     public void countCases(){
         countCase++;
+    }
+
+    public int get_countCase(){
+        return countCase;
     }
 
     public void resetCountCases(){
@@ -156,6 +162,13 @@ class Case extends JPanel implements MouseListener {
     public void mousePressed(MouseEvent e) {
         if (SwingUtilities.isLeftMouseButton(e)) {
             if (!leftClicked) {  
+
+                if(get_countCase() == 0){
+                    champ.init(row,col,champ.get_level());        
+                    champ.display();  
+                    System.out.println("First click");
+                }
+
                 leftClicked = true;  
                 rightClicked = false;
                 countCases();
