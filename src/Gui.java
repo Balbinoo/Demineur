@@ -15,9 +15,12 @@ public class Gui extends JPanel implements ActionListener {
 
     private App app;
     private Champ champ;
-    private JButton butQuit, butNew;
+    private Compteur compt;
+    private Client cli;
+    private JButton butQuit, butNew, butConnexion, butBack;
     private JComboBox levelComboBox;
     private Case cas[][];
+    private JPanel panelCentre = new JPanel();
     private JPanel panelNorth = new JPanel();
     private JPanel panelSouth = new JPanel();
     private JMenu menuPartie = new JMenu("MenuBar");
@@ -28,10 +31,10 @@ public class Gui extends JPanel implements ActionListener {
     private JMenuItem mQuitter;
     private JMenuItem mNiveau;
 
-    Gui(Champ champ, App app) {
-
+    Gui(Champ champ, Client cli, App app) {
         this.app = app;
         this.champ = champ;
+        this.cli = cli;
 
         setLayout(new BorderLayout());
 
@@ -45,7 +48,7 @@ public class Gui extends JPanel implements ActionListener {
         configPainelNorth(label);
 
         // panel centre
-        add(panelMines, BorderLayout.CENTER);
+        configPainelCentre();
 
         // panel south
         configPainelSouth();
@@ -57,8 +60,17 @@ public class Gui extends JPanel implements ActionListener {
             app.quit();
             //System.out.println("La taille du champ est : " + champ.get_width());
         } else if (e.getSource() == butNew || e.getSource() == mNiveau) {
-            app.newPartie(levelComboBox.getSelectedIndex());
-            //System.out.println("New game started!");
+            remove(panelCentre); 
+            add(panelMines, BorderLayout.CENTER); 
+            app.newPartie(levelComboBox.getSelectedIndex(), champ.get_Compt());
+            revalidate();  
+            repaint();        
+
+        } else if(e.getSource() == butConnexion){
+            System.out.println("Conexion button clicked");
+            cli.connexion();
+
+            
         } else {
             throw new UnsupportedOperationException();
         }
@@ -73,6 +85,14 @@ public class Gui extends JPanel implements ActionListener {
         add(panelNorth, BorderLayout.NORTH);
     }
 
+    public void configPainelCentre() {
+        panelCentre.setLayout(new FlowLayout(FlowLayout.CENTER)); 
+        butConnexion = new JButton("Connexion");
+        butConnexion.addActionListener(this);    
+        panelCentre.add(butConnexion);  
+        add(panelCentre, BorderLayout.CENTER);  
+    }
+    
     public void configPainelSouth(){
         panelSouth.setLayout(new FlowLayout()); 
         // Button quit
@@ -84,6 +104,9 @@ public class Gui extends JPanel implements ActionListener {
         butNew.addActionListener(this);
         panelSouth.add(butNew);
         add(panelSouth, BorderLayout.SOUTH);
+
+        
+
     }
 
     public void configMenuOption(){
@@ -129,11 +152,10 @@ public class Gui extends JPanel implements ActionListener {
         return cas;
     }
 
-
-
     public void setLabelScore(int score){
         labelScore.setText(String.valueOf(score));
-        //add(panelNorth, BorderLayout.NORTH);
+        add(panelNorth, BorderLayout.NORTH);
+        app.pack();
     }
 
 }
