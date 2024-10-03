@@ -12,6 +12,7 @@ public class Champ {
 
     private int score;  
     static boolean [][] tabMines ;
+    static boolean [][] tabRevealed;
     private static  int def_width  = 0;
     private static  int def_height  = 0;
     //private final static  int DEF_NDMINES = 2 ;
@@ -25,6 +26,15 @@ public class Champ {
 
     public Champ( ) {
         tabMines = new boolean[get_height()][get_width()];
+        tabRevealed = new boolean[get_height()][get_width()];
+    }
+
+    public boolean isRevealed(int x, int y) {
+        return tabRevealed[x][y];  
+    }
+
+    public void setRevealed(int x, int y) {
+        tabRevealed[x][y] = true; 
     }
 
     public void countScore(){
@@ -151,6 +161,7 @@ public class Champ {
 
     void newPartie(int level) {
             tabMines = new boolean[get_width()][get_height()] ;  
+            tabRevealed = new boolean[get_width()][get_height()];
     }
 
 }

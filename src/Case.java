@@ -2,12 +2,6 @@ import java.awt.event.*;
 import java.awt.*;
 import javax.swing.*;
 
-/**
- * Graphical User Interface (View)
- * @author Rodrigo Balbino
- * @version 0.0
- */
-
 class Case extends JPanel implements MouseListener {
 
     private static Champ champ;
@@ -22,7 +16,7 @@ class Case extends JPanel implements MouseListener {
     private boolean rightClicked = false;
     private Gui gui;
 
-    public Case(){}
+    public Case() {}
 
     public Case(Gui gui, int row, int col, Champ champ, App app, Compteur comp) {
         this.gui = gui;
@@ -36,35 +30,35 @@ class Case extends JPanel implements MouseListener {
         caseGeneralConfig();        
     }
 
-    public int getRow(){
-        return row;
+    public int getRow() {
+        return this.row;
     }
 
-    public int getCol(){
-        return col;
+    public int getCol() {
+        return this.col;
     }
 
-    public void setTxt(String newTxt){
+    public void setTxt(String newTxt) {
         txt = newTxt;
     }
 
-    public String getTxt(){
+    public String getTxt() {
         return txt;
     }
 
-    public void countCases(){
+    public void countCases() {
         countCase++;
     }
 
-    public int get_countCase(){
+    public int get_countCase() {
         return countCase;
     }
 
-    public void resetCountCases(){
+    public void resetCountCases() {
         countCase = 0;
     }
 
-    public void caseGeneralConfig(){
+    public void caseGeneralConfig() {
         setBackground(Color.green); 
         setBorder(BorderFactory.createLineBorder(Color.black));
         setPreferredSize(new Dimension(DIM, DIM)); 
@@ -72,8 +66,7 @@ class Case extends JPanel implements MouseListener {
     }
 
     @Override
-    public void paintComponent(Graphics gc) {
-
+    public void paintComponent(Graphics gc) {     
         super.paintComponent(gc);  
         gc.setFont(new Font("Arial", Font.BOLD, 20));  
         FontMetrics fm = gc.getFontMetrics();
@@ -90,7 +83,7 @@ class Case extends JPanel implements MouseListener {
             paintSecondRightClicked();        
     }
 
-    public void paintLeftClicked(Graphics gc, int x, int y){
+    public void paintLeftClicked(Graphics gc, int x, int y) {
         if (champ.isMine(row, col)) 
             paintIsMine(gc);
         else 
@@ -99,60 +92,40 @@ class Case extends JPanel implements MouseListener {
         gc.drawString(getTxt(), x, y); 
     }
 
-    public void paintIsMine(Graphics gc){
+    public void paintIsMine(Graphics gc) {
+        champ.setRevealed(row, col);
         setTxt("M");
         setBackground(Color.red);  
         gc.setColor(Color.white); 
     }
 
-    public void isNotMine(Graphics gc, int row, int col){
-        int numberOfMines = champ.nbMinesAround(row, col);
+    public void isNotMine(Graphics gc, int row, int col) {
+        int numberOfMines = champ.nbMinesAround(row, col);        
+        champ.setRevealed(row, col);
 
-        if(numberOfMines == 0)
-            propagation(getRow(), getCol(), gc);
-        else
+        if (numberOfMines == 0) {
+            gc.setColor(Color.white);
+            paintIsNotMine(gc, numberOfMines);   
+            propagation(row, col);  // Continue propagation for zero mines
+        } else {
             paintIsNotMine(gc, numberOfMines);    
+        }
     }
 
-    public void paintIsNotMine(Graphics gc, int numberOfMines){
+    public void paintIsNotMine(Graphics gc, int numberOfMines) {
         setBackground(Color.lightGray);  
         gc.setColor(Color.black);
         setTxt(Integer.toString(numberOfMines));
     }
 
-    public void propagation(int row, int col, Graphics gc){
-        //System.out.println("Do the propagation");
-        Case currentCase = this;
-        paintIsNotMine(gc, 0);  
-
-        for (int i = row - 1; i <= row + 1; i++) {
-            for (int j = col - 1; j <= col + 1; j++) {
-                if (i >= 0 && i < champ.get_width() && j >= 0 && j < champ.get_height()) {
-                    if (champ.isMine(i, j))
-                        continue;
-                        
-                        //Case currentCase2 = getCas();
-                       // Case currentCase = champ.cas[i][j];  // Assuming you have a 2D array of `Case` objects
-                            
-                // If there are no mines around this case, change its appearance
-                if (0 == champ.nbMinesAround(i, j)) {
-                    currentCase.setBackground(Color.lightGray);  // Change the background
-                    currentCase.setTxt("0");  // Update the text of the case
-                    currentCase.repaint();  // Request a repaint to reflect the changes
-                }
-              }
-            }
-        }
-    }
-
-    public void paintRightClicked(Graphics gc, int x, int y){
+    public void paintRightClicked(Graphics gc, int x, int y) {
         setBackground(Color.magenta);  
         setTxt("F");
         gc.setColor(Color.white);  
         gc.drawString(getTxt(), x, y); 
     }
 
-    public void paintSecondRightClicked(){
+    public void paintSecondRightClicked() {
         setBackground(Color.green);    
         setTxt(" ");
     }
@@ -161,21 +134,27 @@ class Case extends JPanel implements MouseListener {
     public void mousePressed(MouseEvent e) {
         if (SwingUtilities.isLeftMouseButton(e)) {
             if (!leftClicked) {  
-
-                if(get_countCase() == 0){
-                    champ.init(row,col,champ.get_level());        
-                    champ.display();  
+                if (get_countCase() == 0) {
                     System.out.println("First click");
+                    champ.init(row, col, champ.get_level());        
+                    champ.display();  
                 }
+
+                if (champ.nbMinesAround(row, col) == 0) {
+                    propagation(row, col);  // Propagate if zero mines around
+                }  else {
+                    countCases();
+                }      
 
                 leftClicked = true;  
                 rightClicked = false;
-                countCases();
+                
+                System.out.println("Count Cases:"+ get_countCase());
+
                 repaint();
 
                 verifyGameStatus(gui);
             }  
-
         } else if (SwingUtilities.isRightMouseButton(e)) {
             if (!leftClicked) {  
                 rightClicked = !rightClicked; 
@@ -184,19 +163,54 @@ class Case extends JPanel implements MouseListener {
         }
     }
 
-    public void verifyGameStatus(Gui gui){
+    public void verifyGameStatus(Gui gui) {
         if (champ.isMine(row, col)) 
             champ.game_over(comp, app, gui, this);
-        if(countCase == freeCases())                   
+        if (countCase == freeCases())                   
             champ.game_won(comp, app, gui, this);
     }
 
-    public int freeCases(){
-        return (champ.get_width()*champ.get_height()) - champ.get_numeroMines(champ.get_level());
+    public int freeCases() {
+        return (champ.get_width() * champ.get_height()) - champ.get_numeroMines(champ.get_level());
     }
 
-    public void mouseEntered (MouseEvent e) {}
-    public void mouseReleased (MouseEvent e) {}
+    public void propagation(int row, int col) {
+
+        if (row < 0 || row >= champ.get_width() || col < 0 || col >= champ.get_height() || champ.isRevealed(row, col)) {
+            return;
+        }
+    
+        if (champ.isMine(row, col)) {
+            return;
+        }
+    
+        Case currentCase = gui.getCase(row, col);
+        currentCase.leftClicked = true;
+        champ.setRevealed(row, col);
+
+        int minesAround = champ.nbMinesAround(row, col);
+
+        currentCase.setBackground(Color.lightGray);
+        currentCase.setTxt(Integer.toString(minesAround));
+        currentCase.repaint();
+    
+        if (minesAround == 0) {
+            for (int i = row - 1; i <= row + 1; i++) {
+                for (int j = col - 1; j <= col + 1; j++) {
+                    if (i != row || j != col) {  
+                        
+                        propagation(i, j);
+                    }
+                }
+            }
+        }
+
+        countCases();
+
+    }
+
+    public void mouseEntered(MouseEvent e) {}
+    public void mouseReleased(MouseEvent e) {}
     public void mouseClicked(MouseEvent e) {}    
     public void mouseExited(MouseEvent e) {}
 }

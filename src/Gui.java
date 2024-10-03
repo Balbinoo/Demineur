@@ -206,9 +206,13 @@ public class Gui extends JPanel implements ActionListener {
         app.pack();
     }
     
-    public Case[][] getCas(){
-        return cas;
+    public Case getCase(int row, int col) {
+        if (row >= 0 && row < cas.length && col >= 0 && col < cas[0].length) {
+            return cas[row][col];  // Return the Case object at the specified coordinates
+        }
+        return null;  // Out of bounds
     }
+
 
     public void setLabelScore(int score){
         labelScore.setText(String.valueOf(score));
