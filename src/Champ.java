@@ -2,14 +2,16 @@ import java.util.Random;
 import javax.swing.*;
 import java.awt.event.*;
 import java.awt.*;
+import java.io.*; 
 
 /**
  * Magnifique programme
  * @author  Rodrigo Balbino
  * @version 0.0
  */
-public class Champ {
+public class Champ implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     private int score;  
     static boolean [][] tabMines ;
     static boolean [][] tabRevealed;

@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.*;
 import java.util.Random;
+import java.io.Serializable;
 
 /**
  * Graphical User Interface (View)
@@ -13,25 +14,42 @@ import java.util.Random;
  */
 
 public class Gui extends JPanel implements ActionListener {
+    private static final long serialVersionUID = 1L;
 
+    //entites
     private App app;
     private Champ champ;
     private Compteur compt;
     private Case ca;
-    private Client cli;
-    private JButton butQuit, butNew, butConnexion, butBack;
-    private JComboBox levelComboBox;
     private Case cas[][];
+    private Client cli;
+
+    //Panels
     private JPanel panelCentre = new JPanel();
     private JPanel panelNorth = new JPanel();
     private JPanel panelSouth = new JPanel();
+    private JPanel inputPanel = new JPanel();
+
+    //Menus
     private JMenu menuPartie = new JMenu("Menu");
     private JMenu menuAbout = new JMenu("About");
     private JMenuBar menuBar = new JMenuBar();
+    private JMenuItem mQuitter, mNiveau, mBack, mGame;
+
+    // Labels
     private JLabel label = new JLabel("Score");
     private JLabel labelScore = new JLabel("0");
     private JPanel panelMines = new JPanel();
-    private JMenuItem mQuitter, mNiveau, mBack, mGame;
+    private JLabel enterName = new JLabel("Enter your name: ");
+
+    //Buttons
+    private JButton butQuit, butNew, butConnexion, butBack;
+    private JComboBox levelComboBox;
+
+    private JTextField nameField = new JTextField(15);
+    private JButton submitButton = new JButton("Submit");
+
+    
 
     Gui(Case cases, Compteur comp, Champ champ, Client cli, App app) {
 
@@ -71,13 +89,23 @@ public class Gui extends JPanel implements ActionListener {
             actionButtonNew();
 
         } else if(e.getSource() == butConnexion){
-            cli.connectServerBackground();
+            actionButtonConnexion();
 
         }  else if(e.getSource() == butBack || e.getSource() == mBack){
             actionButtonBack();
             
         } else if(e.getSource() == mGame){
             actionAbout();
+        } else if(e.getSource() == submitButton){
+            String playerName = nameField.getText();
+            if (!playerName.isEmpty()) {
+                cli.setPlayerName(playerName);  
+                System.out.println("Player name submitted: " + playerName);
+
+                cli.sendPlayerName(playerName); 
+            } else {
+                System.out.println("Name field is empty");
+            }
         } else {
             throw new UnsupportedOperationException();
         }
@@ -88,6 +116,7 @@ public class Gui extends JPanel implements ActionListener {
         resetGui();
     
         // Remove combobox, panel centre, and add panelMines
+        remove(inputPanel);
         remove(panelCentre);
         panelNorth.remove(levelComboBox);
         add(panelMines, BorderLayout.CENTER);
@@ -96,11 +125,36 @@ public class Gui extends JPanel implements ActionListener {
         app.newPartie(levelComboBox.getSelectedIndex(), compt);
     }
 
+
+    public void actionButtonConnexion(){
+        // Connect to the server in the background
+        cli.connectServerBackground();
+    
+        // Create a panel for input
+        inputPanel.setLayout(new FlowLayout());
+
+        // Add label and text field to the panel
+        inputPanel.add(enterName);
+        inputPanel.add(nameField);
+        inputPanel.add(submitButton);
+    
+        // Add the input panel to the center of the window
+        remove(panelCentre); 
+        add(inputPanel, BorderLayout.CENTER);
+        revalidate();
+        repaint();
+
+        submitButton.addActionListener(this);
+
+        
+    }
+    
     public void actionButtonBack(){
             // Reset the score and the GUI
             resetGui();
             // remove panelMines, add panel North and panel Centre
             remove(panelMines); 
+            remove(inputPanel);
             panelNorth.add(levelComboBox);
             add(panelCentre, BorderLayout.CENTER);    
     }
@@ -125,7 +179,6 @@ public class Gui extends JPanel implements ActionListener {
         panelNorth.add(label);    
         panelNorth.add(labelScore);
         panelNorth.add(levelComboBox);
-        System.out.println("level choisis "+levelComboBox.getSelectedItem());
         add(panelNorth, BorderLayout.NORTH);
     }
 

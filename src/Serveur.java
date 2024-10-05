@@ -1,76 +1,96 @@
 import java.net.*; 
 import java.io.*;
 
-public class Serveur {
-
+public class Serveur implements Serializable {
+    private static final long serialVersionUID = 1L; 
     private int nbJoeur = 0;
+    private Thread listenConexions, listenClient;
+    private boolean listening, receiving;
+    private  Champ champ;
+    private  Gui gui;
+    private  Case ca;
 
-    Serveur(){
+    Serveur(Champ champ, Gui gui, Case ca) {
         System.out.println("Démarrage du serveur"); 
+        this.listening = false;
+        this.receiving = false;
+        this.champ = champ;
+        this.gui = gui;
+        this.ca = ca;
+        startServerInBackground(); 
     }
 
     public void startServerInBackground() {
-        new Thread(() -> initServer()).start();
+        if (!listening) {
+            listening = true;
+            listenConexions = new Thread(() -> initServer());
+            listenConexions.start();
+        }
     }
 
     public void initServer() {
-        try {
-            ServerSocket gestSock = new ServerSocket(10000);  
-
-            while (true) {
+        try (ServerSocket serverSocket = new ServerSocket(10000)) {
+            while (listening) { // pour connecter avec le client
                 System.out.println("En attente de connexion...");
-
-                Socket socket = gestSock.accept(); 
+                Socket socket = serverSocket.accept(); 
                 System.out.println("connecté");
 
-                new Thread(() -> handleClient(socket, ++nbJoeur)).start();
-            }
+                champ.init(0, 0, 0);
+                champ.display();
 
+                
+                listenClient = new Thread(() -> handleClient(socket, ++nbJoeur));
+                listenClient.start();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
     public void handleClient(Socket socket, int nbJoeur) {
         try {
-            DataInputStream entree = new DataInputStream(socket.getInputStream()); 
-            DataOutputStream sortie = new DataOutputStream(socket.getOutputStream()); 
-
+            DataInputStream entree = new DataInputStream(socket.getInputStream());
+            DataOutputStream sortie = new DataOutputStream(socket.getOutputStream());
+            ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
+    
             String nomJoueur = entree.readUTF();  
             System.out.println(nomJoueur + " connecté"); 
+                
+            // Send player number
+            sortie.writeInt(nbJoeur);  
+            sortie.flush();  
+    
+            // Send the serialized Champ object to the client
+            objectOut.writeObject(champ);
+            objectOut.flush();  
             
-            sortie.writeInt(nbJoeur);   
-
-            while (!socket.isClosed()) {
-                try {
-                    String message = entree.readUTF();
-                    System.out.println("Message reçu de " + nomJoueur + ": " + message);
-
-                    sortie.writeUTF("Réponse du serveur: " + message);
-
-                    if (message.equalsIgnoreCase("exit")) {
-                        System.out.println(nomJoueur + " a fermé la connexion.");
-                        break;
-                    }
-
-                } catch (EOFException e) {
-                    System.out.println("Connexion terminée avec " + nomJoueur);
-                    break;
-                }
-            }
-
-            sortie.close(); 
-            entree.close(); 
-            socket.close(); 
-            
-            System.out.println("Connexion fermée pour " + nomJoueur);
-
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    public void stopListening() {
+        listening = false;
+        if (listenConexions != null && listenConexions.isAlive()) {
+            try {
+                listenConexions.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void stopReceiving(){
+        receiving = false;
+        if (listenClient != null && listenClient.isAlive()) {
+            try {
+                listenClient.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }  
     }
 
     public static void main(String[] args) { 
-        new Serveur().startServerInBackground();  
+        // Create and start the server here
     }
 }

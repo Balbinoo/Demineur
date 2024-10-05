@@ -2,83 +2,72 @@ import java.net.*;
 import java.io.*; 
 import java.util.Scanner;
 
-public class Client {
+public class Client implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-    private Socket sock;
-    private DataOutputStream out;
-    private DataInputStream in;
     private String playerName;
-    Scanner scanner = new Scanner(System.in);
+    private Socket sock;
+    private DataInputStream in;
+    private DataOutputStream out;
+    private ObjectInputStream objectIn;  // For receiving objects
+    private Champ champ;  // Assuming Champ is a class you've defined
+    private Gui gui;
+    private Scanner scanner = new Scanner(System.in);
+    private Thread connection;
+    private boolean sending;
+
 
     Client() {
         System.out.println("Client created");
     }
 
-    public void connectServerBackground(){
-        new Thread(() -> initConnexion()).start();
+    public void connectServerBackground() {
+        connection = new Thread(()-> initConnection());
+        connection.start();
     }
 
-    public void initConnexion(){
+    public void initConnection() {
         try {
-            sock = new Socket("localhost", 10000);  
+            sock = new Socket("localhost", 10000);
             out = new DataOutputStream(sock.getOutputStream());
             in = new DataInputStream(sock.getInputStream());
-
-            System.out.print("Ecrit ton prenom: ");
-            playerName = scanner.nextLine();  
-
-            out.writeUTF(playerName);  
-
-            int numJoueur = in.readInt();  
-            System.out.println("Joueur n°: " + numJoueur);
-
-            new Thread(() -> sendMessages()).start();
-
-            receiveMessages();
-
-        } catch (UnknownHostException e) {
-            System.out.println("Host desconhecido");
-        } catch (IOException e) {
+            objectIn = new ObjectInputStream(sock.getInputStream());
+    
+            // player number 
+            int playerNumber = in.readInt();
+            System.out.println("Player number received: " + playerNumber);
+    
+            // receive the Champ object
+            champ = (Champ) objectIn.readObject();
+            System.out.println("Champ object received from server");
+            champ.display();
+    
+        } catch (Exception e) {
             e.printStackTrace();
         }
+    }    
+
+    public void setPlayerName(String playerName) {
+        this.playerName = playerName;
+        sendPlayerName(playerName);
     }
 
-    public void sendMessages() {
-        Scanner scanner = new Scanner(System.in);
+    public void sendPlayerName(String playerName) {
         try {
-            String message;
-            while (true) {
-                System.out.print("Digite uma mensagem (ou 'exit' para sair): ");
-                message = scanner.nextLine();  
-                out.writeUTF(message); 
-
-                if (message.equalsIgnoreCase("exit")) {
-                    System.out.println("Encerrando a conexão...");
-                    sock.close();
-                    break;
-                }
+            if (out != null) {
+                out.writeUTF(playerName);  // Send player’s name to server
+                out.flush();
+            } else {
+                System.out.println("Output stream is not initialized.");
             }
-            scanner.close();  
         } catch (IOException e) {
-            System.out.println("Erro ao enviar mensagem");
             e.printStackTrace();
-        }
-    }
-
-    public void receiveMessages() {
-        try {
-            while (!sock.isClosed()) {
-                String message = in.readUTF();  
-                System.out.println("Mensagem do servidor: " + message); 
-            }
-        } catch (IOException e) {
-            if (!sock.isClosed()) {
-                System.out.println("Conexão encerrada pelo servidor.");
-            }
         }
     }
 
     public static void main(String[] args) {
-        new Client();  
+        System.out.println("Main do client");
+        //Client client = new Client();
+        //client.connectServerBackground();
     }
 }

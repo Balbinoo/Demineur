@@ -25,11 +25,10 @@ public class App extends JFrame {
         super("Demineur");
         compt = new Compteur(1);  
         champ = new Champ();
-        serv = new Serveur();
         cas = new Case();
-        serv.startServerInBackground();
         cli = new Client();
         gui = new Gui(cas, compt, champ, cli, this);
+        serv = new Serveur(champ, gui, cas);
 
         revalidate();  
         repaint();     
