@@ -68,33 +68,55 @@ public class Gui extends JPanel implements ActionListener {
             app.quit();
 
         } else if (e.getSource() == butNew || e.getSource() == mNiveau) { 
-            remove(panelCentre);
-            add(panelMines, BorderLayout.CENTER); 
-            app.newPartie(levelComboBox.getSelectedIndex(), compt);
-            resetGui();
+            actionButtonNew();
 
         } else if(e.getSource() == butConnexion){
             cli.connectServerBackground();
 
         }  else if(e.getSource() == butBack || e.getSource() == mBack){
-            remove(panelMines); 
-            add(panelCentre, BorderLayout.CENTER);    
-            resetGui();
+            actionButtonBack();
             
         } else if(e.getSource() == mGame){
-            String message = "The Minesweeper game was created by Rodrigo Balbino \n         for his final projet in Advanced Java Class";
-            JOptionPane.showMessageDialog(this, message, "Game Info", JOptionPane.INFORMATION_MESSAGE);
+            actionAbout();
         } else {
             throw new UnsupportedOperationException();
         }
     }
 
-    public void resetGui(){
-        compt.stop();
+    public void actionButtonNew() {
+        // Reset the score and the GUI
+        resetGui();
+    
+        // Remove combobox, panel centre, and add panelMines
+        remove(panelCentre);
+        panelNorth.remove(levelComboBox);
+        add(panelMines, BorderLayout.CENTER);
+    
+        // Start a new game and compteur
+        app.newPartie(levelComboBox.getSelectedIndex(), compt);
+    }
+
+    public void actionButtonBack(){
+            // Reset the score and the GUI
+            resetGui();
+            // remove panelMines, add panel North and panel Centre
+            remove(panelMines); 
+            panelNorth.add(levelComboBox);
+            add(panelCentre, BorderLayout.CENTER);    
+    }
+
+    public void actionAbout(){
+        String message = "The Minesweeper game was created by Rodrigo Balbino \n         for his final projet in Advanced Java Class";
+        JOptionPane.showMessageDialog(this, message, "Game Info", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public void resetGui() {
+        compt.stop();        
+        compt.resetScore();    
+        labelScore.setText("0"); 
         ca.resetCountCases();  
-        compt.resetScore();
-        revalidate();  
-        repaint(); 
+        revalidate();
+        repaint();
     }
 
     public void configPainelNorth(JLabel label){
@@ -208,20 +230,16 @@ public class Gui extends JPanel implements ActionListener {
     
     public Case getCase(int row, int col) {
         if (row >= 0 && row < cas.length && col >= 0 && col < cas[0].length) {
-            return cas[row][col];  // Return the Case object at the specified coordinates
+            return cas[row][col]; 
         }
-        return null;  // Out of bounds
+        return null;  
     }
-
 
     public void setLabelScore(int score){
         labelScore.setText(String.valueOf(score));
-        add(panelNorth, BorderLayout.NORTH);
-        app.pack();
     }
 
     public int showOptionDialog(Case cas, String title, String message, String type){
-
         return JOptionPane.showOptionDialog(cas, message, title,JOptionPane.YES_NO_OPTION, type.equals("info") ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE, null, new String[]{"New Game", "Quit"}, "New Game");
     }
 }

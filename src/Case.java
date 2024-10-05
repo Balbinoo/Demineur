@@ -115,7 +115,11 @@ class Case extends JPanel implements MouseListener {
     public void paintIsNotMine(Graphics gc, int numberOfMines) {
         setBackground(Color.lightGray);  
         gc.setColor(Color.black);
-        setTxt(Integer.toString(numberOfMines));
+
+        if(numberOfMines == 0)
+            setTxt(" ");
+        else
+            setTxt(Integer.toString(numberOfMines));
     }
 
     public void paintRightClicked(Graphics gc, int x, int y) {
@@ -149,8 +153,6 @@ class Case extends JPanel implements MouseListener {
                 leftClicked = true;  
                 rightClicked = false;
                 
-                System.out.println("Count Cases:"+ get_countCase());
-
                 repaint();
 
                 verifyGameStatus(gui);
