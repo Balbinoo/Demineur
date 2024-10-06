@@ -6,6 +6,7 @@ public class Client implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String playerName;
+    private int playerNumero;
     private Socket sock;
     private DataInputStream in;
     private DataOutputStream out;
@@ -36,7 +37,8 @@ public class Client implements Serializable {
             // player number 
             int playerNumber = in.readInt();
             System.out.println("Player number received: " + playerNumber);
-    
+            this.setPlayerNumero(playerNumber);
+
             // receive the Champ object
             champ = (Champ) objectIn.readObject();
             System.out.println("Champ object received from server");
@@ -49,20 +51,18 @@ public class Client implements Serializable {
 
     public void setPlayerName(String playerName) {
         this.playerName = playerName;
-        sendPlayerName(playerName);
     }
 
-    public void sendPlayerName(String playerName) {
-        try {
-            if (out != null) {
-                out.writeUTF(playerName);  // Send player’s name to server
-                out.flush();
-            } else {
-                System.out.println("Output stream is not initialized.");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public String getPlayerName() {
+        return this.playerName;
+    }
+
+    public void setPlayerNumero(int newPlayerNumero) {
+        this.playerNumero = newPlayerNumero;
+    }
+
+    public int getPlayerNumero() {
+        return this.playerNumero;
     }
 
     public static void main(String[] args) {

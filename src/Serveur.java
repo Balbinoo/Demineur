@@ -29,8 +29,10 @@ public class Serveur implements Serializable {
     }
 
     public void initServer() {
-        try (ServerSocket serverSocket = new ServerSocket(10000)) {
-            while (listening) { // pour connecter avec le client
+        ServerSocket serverSocket = null; // Declare the serverSocket here for later use
+        try {
+            serverSocket = new ServerSocket(10000);
+            while (listening) { // Wait for client connections
                 System.out.println("En attente de connexion...");
                 Socket socket = serverSocket.accept(); 
                 System.out.println("connecté");
@@ -38,14 +40,32 @@ public class Serveur implements Serializable {
                 champ.init(0, 0, 0);
                 champ.display();
 
-                
+                System.out.println("CHEGOU ATE AQUI!!");
                 listenClient = new Thread(() -> handleClient(socket, ++nbJoeur));
+                System.out.println("CHegou entre as treads aqui?");
                 listenClient.start();
+                System.out.println("CRIOU A TREAD?");
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (java.net.BindException e) {
+            System.out.println("C'est deja ouvert!!");
+            stopListening();
+            System.exit(0);
+        } catch (IOException e1) {
+            System.out.println("Exception different!!");
+            stopListening();
+            System.exit(0);
+        } finally {
+            // Ensure that the server socket is closed
+            if (serverSocket != null && !serverSocket.isClosed()) {
+                try {
+                    serverSocket.close();
+                } catch (IOException e) {
+                    System.out.println("Error closing server socket: " + e.getMessage());
+                }
+            }
         }
     }
+
     public void handleClient(Socket socket, int nbJoeur) {
         try {
             DataInputStream entree = new DataInputStream(socket.getInputStream());
