@@ -6,6 +6,8 @@ import java.awt.event.KeyEvent;
 import java.awt.*;
 import java.util.Random;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Graphical User Interface (View)
@@ -24,11 +26,15 @@ public class Gui extends JPanel implements ActionListener {
     private Case cas[][];
     private Client cli;
 
+    List<String> playerNames = new ArrayList<>();
+
     //Panels
+    private JPanel panelCustom = new JPanel();
     private JPanel panelCentre = new JPanel();
     private JPanel panelNorth = new JPanel();
     private JPanel panelSouth = new JPanel();
-    private JPanel inputPanel = new JPanel();
+    private JPanel panelLeft = new JPanel();
+    private JPanel panelInput = new JPanel();
 
     //Menus
     private JMenu menuPartie = new JMenu("Menu");
@@ -37,19 +43,31 @@ public class Gui extends JPanel implements ActionListener {
     private JMenuItem mQuitter, mNiveau, mBack, mGame;
 
     // Labels
+    private JLabel setCustomMines = new JLabel();
+    private JLabel setCustomLabel = new JLabel();
+    private JLabel labelName = new JLabel();
     private JLabel label = new JLabel("Score");
     private JLabel labelScore = new JLabel("0");
     private JPanel panelMines = new JPanel();
     private JLabel enterName = new JLabel("Enter your name: ");
 
     //Buttons
-    private JButton butQuit, butNew, butConnexion, butBack;
+    private JButton butQuit, butNew, butConnexion, butBack, butCustom;
     private JComboBox levelComboBox;
 
     private JTextField nameField = new JTextField(15);
     private JButton submitButton = new JButton("Submit");
 
+    private JTextField setWidth = new JTextField(5);
+    private JTextField setHeight = new JTextField(5);
+    private JTextField setMines = new JTextField(5);
+
+
+    // Add a JTextArea to display player names
+    private JTextArea playerNamesArea = new JTextArea(10, 20); // 10 rows, 20 columns
+
     
+    Gui(){}
 
     Gui(Case cases, Compteur comp, Champ champ, Client cli, App app) {
 
@@ -58,7 +76,7 @@ public class Gui extends JPanel implements ActionListener {
         this.cli = cli;
         this.compt = comp;
         this.ca = cases;
-
+        
         setLayout(new BorderLayout());
 
         // MenuBar
@@ -96,34 +114,164 @@ public class Gui extends JPanel implements ActionListener {
             
         } else if(e.getSource() == mGame){
             actionAbout();
-        } else if(e.getSource() == submitButton){
-            String playerName = nameField.getText();
-            if (!playerName.isEmpty()) {
-                cli.setPlayerName(playerName);  
-                System.out.println("Player name submitted: " + playerName);
 
-                cli.sendPlayerName(playerName); 
-            } else {
-                System.out.println("Name field is empty");
-            }
-        } else {
+        } else if(e.getSource() == submitButton){
+            actionButtonConnexionSubmit();
+
+        } else if(e.getSource() == butCustom){ 
+            int width = Integer.parseInt(setWidth.getText());
+            int height = Integer.parseInt(setHeight.getText());
+            int mines = Integer.parseInt(setMines.getText());
+
+            remove(panelInput); 
+            remove(panelCustom); 
+            remove(panelCentre);
+            panelNorth.remove(levelComboBox);
+
+            //add(panelNorth, BorderLayout.CENTER);
+            //add(panelSouth, BorderLayout.CENTER);
+            add(panelMines, BorderLayout.CENTER);
+
+            // Start a new game and compteur
+
+            app.newCustomPartie(levelComboBox.getSelectedIndex(),mines,width, height,compt);
+
+        }else {
             throw new UnsupportedOperationException();
         }
+    }
+
+    // Method to update player names display in JTextArea
+    private void updatePlayerNamesDisplay() {
+        StringBuilder names = new StringBuilder();
+        for (String player : playerNames) {
+            names.append(player).append("\n");
+        }
+        playerNamesArea.setText(names.toString()); // Set the updated text
     }
 
     public void actionButtonNew() {
         // Reset the score and the GUI
         resetGui();
-    
+        
+        System.out.println("LEvelcombobox"+ levelComboBox.getSelectedIndex());
         // Remove combobox, panel centre, and add panelMines
-        remove(inputPanel);
+
+        remove(panelInput); 
+        remove(panelCustom); 
         remove(panelCentre);
         panelNorth.remove(levelComboBox);
-        add(panelMines, BorderLayout.CENTER);
-    
-        // Start a new game and compteur
-        app.newPartie(levelComboBox.getSelectedIndex(), compt);
+
+        if(levelComboBox.getSelectedIndex()==3){
+            actionCustomSelected();
+        }else{
+            add(panelMines, BorderLayout.CENTER);
+            // Start a new game and compteur
+            app.newPartie(levelComboBox.getSelectedIndex(), compt);
+        }
     }
+
+    public void actionButtonConnexionSubmit(){
+        String playerName = nameField.getText();
+        if (!playerName.isEmpty()) {
+            cli.setPlayerName(playerName);
+            System.out.println("Player name submitted: " + playerName);
+            playerNames.add(playerName); // Add to the list
+
+            // Clear the JTextArea and display all player names
+            updatePlayerNamesDisplay();
+
+            // Optional: Reset the nameField after submission
+            nameField.setText("");
+        } else {
+            System.out.println("Name field is empty");
+        }
+        
+        actionButtonNew(); // You might want to call this if it's meant to start a new game            
+       
+        // Initialize the JTextArea and set properties
+        playerNamesArea.setEditable(false); // Make it read-only
+        playerNamesArea.setLineWrap(true);
+        playerNamesArea.setWrapStyleWord(true);
+        
+        // Add the JTextArea to a JScrollPane for better viewing
+        JScrollPane scrollPane = new JScrollPane(playerNamesArea);
+        panelLeft.add(scrollPane); // Add to your left panel
+        add(panelLeft, BorderLayout.WEST);
+        /*
+        labelName.setText(playerName);
+        panelLeft.add(labelName);
+        add(panelLeft, BorderLayout.WEST);
+        */
+    }
+
+    public void actionCustomSelected() {
+        panelCustom.removeAll();
+        panelCustom.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5); 
+        gbc.fill = GridBagConstraints.HORIZONTAL; 
+    
+        setCustomLabel = new JLabel("Add Grid Size (Width x Height): ");
+        setWidth = new JTextField(3); 
+        setHeight = new JTextField(3);
+        setCustomMines = new JLabel("Number of Mines: ");
+        setMines = new JTextField(3);
+        butCustom = new JButton("Send Values");
+    
+        // Set custom panel border for padding
+        panelCustom.setBorder(BorderFactory.createTitledBorder("Custom Game Settings"));
+    
+        // Layout configuration: Position each component with grid positioning
+    
+        // First row: "Grid Size (Width x Height):" label
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        panelCustom.add(setCustomLabel, gbc);
+    
+        // Second row: Width text field
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        panelCustom.add(new JLabel("Width:"), gbc);
+    
+        gbc.gridx = 1;
+        panelCustom.add(setWidth, gbc);
+    
+        // Third row: Height text field
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        panelCustom.add(new JLabel("Height:"), gbc);
+    
+        gbc.gridx = 1;
+        panelCustom.add(setHeight, gbc);
+    
+        // Fourth row: "Number of Mines:" label and text field
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        panelCustom.add(setCustomMines, gbc);
+    
+        gbc.gridy = 4;
+        gbc.gridwidth = 1;
+        panelCustom.add(setMines, gbc);
+    
+        // Last row: Send button centered
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        panelCustom.add(butCustom, gbc);
+    
+        // Add the custom panel to the main layout
+        add(panelCustom, BorderLayout.CENTER);
+        //revalidate();
+        //repaint();
+    
+        // Attach action listener to the button
+        butCustom.addActionListener(this);
+    }
+    
 
 
     public void actionButtonConnexion(){
@@ -131,21 +279,20 @@ public class Gui extends JPanel implements ActionListener {
         cli.connectServerBackground();
     
         // Create a panel for input
-        inputPanel.setLayout(new FlowLayout());
+        panelInput.setLayout(new FlowLayout());
 
         // Add label and text field to the panel
-        inputPanel.add(enterName);
-        inputPanel.add(nameField);
-        inputPanel.add(submitButton);
+        panelInput.add(enterName);
+        panelInput.add(nameField);
+        panelInput.add(submitButton);
     
         // Add the input panel to the center of the window
         remove(panelCentre); 
-        add(inputPanel, BorderLayout.CENTER);
+        add(panelInput, BorderLayout.CENTER);
         revalidate();
         repaint();
 
         submitButton.addActionListener(this);
-
         
     }
     
@@ -153,8 +300,10 @@ public class Gui extends JPanel implements ActionListener {
             // Reset the score and the GUI
             resetGui();
             // remove panelMines, add panel North and panel Centre
+            remove(panelInput); 
+            remove(panelCustom); 
             remove(panelMines); 
-            remove(inputPanel);
+            remove(panelInput);
             panelNorth.add(levelComboBox);
             add(panelCentre, BorderLayout.CENTER);    
     }
@@ -267,6 +416,10 @@ public class Gui extends JPanel implements ActionListener {
     }
 
     public void majPanelMines() {
+
+        System.out.println("champ.get_width()= "+champ.get_width());
+        System.out.println("champ.get_height()= "+champ.get_height());
+
         cas = new Case[champ.get_width()][champ.get_height()];
     
         panelMines.setLayout(new GridLayout(champ.get_height(), champ.get_width()));
@@ -280,7 +433,7 @@ public class Gui extends JPanel implements ActionListener {
         }
         app.pack();
     }
-    
+
     public Case getCase(int row, int col) {
         if (row >= 0 && row < cas.length && col >= 0 && col < cas[0].length) {
             return cas[row][col]; 

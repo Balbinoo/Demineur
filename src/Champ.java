@@ -17,6 +17,9 @@ public class Champ implements Serializable {
     static boolean [][] tabRevealed;
     private static  int def_width  = 0;
     private static  int def_height  = 0;
+    private static  int def_customWidth  = 0;
+    private static  int def_customHeight  = 0;
+
     //private final static  int DEF_NDMINES = 2 ;
     //private Compteur compt;
     private int level = 0;
@@ -24,11 +27,15 @@ public class Champ implements Serializable {
     Random random = new Random();
 
     private int [] tabSize = {5,10,30} ;
-    private int [] tabNMines = {3,7,9} ;
+    private int [] tabNMines = {3,7,9,10} ;
 
     public Champ( ) {
-        tabMines = new boolean[get_height()][get_width()];
-        tabRevealed = new boolean[get_height()][get_width()];
+        //tabMines = new boolean[get_height()][get_width()];
+        //tabRevealed = new boolean[get_height()][get_width()];
+    }
+
+    public void setCustomTabNMines(int mines){
+        tabNMines[3] = mines;
     }
 
     public boolean isRevealed(int x, int y) {
@@ -47,16 +54,16 @@ public class Champ implements Serializable {
         return score;    
     }
 
+    public int get_width(){
+        return (this.get_level() == 3) ? get_CustomWidth() : tabSize[def_width];
+}
+
     public int get_height(){
-            return tabSize[def_height];
+      return (this.get_level() == 3) ? get_CustomHeight() : tabSize[def_height];
     }
 
     public int get_numeroMines(int level){
         return tabNMines[level];
-    }
-
-    public int get_width(){
-            return  tabSize[def_width];
     }
 
     public void set_height(int level){
@@ -65,6 +72,23 @@ public class Champ implements Serializable {
 
     public void set_width(int level){
         def_width = level;
+    }
+
+
+    public void set_CustomHeight(int customheight){
+        def_customHeight = customheight;
+    }
+
+    public void set_CustomWidth(int customWidth){
+        def_customWidth = customWidth;
+    }
+
+    public int get_CustomHeight(){
+        return def_customHeight;
+    }
+
+    public int get_CustomWidth(){
+        return def_customWidth;
     }
 
     public int get_level(){
@@ -81,21 +105,30 @@ public class Champ implements Serializable {
     }
 
      void init(int startX, int startY, int level) {
-        
-        for (int n = tabNMines[level] ; n != 0; ) {  
-            int x = random.nextInt(tabSize[level]);         
-            int y = random.nextInt(tabSize[level]);    
+        System.out.println("what level?"+level);
 
-            if (!(tabMines[x][y] || (x == startX && y == startY))) {
-                tabMines[x][y] = true;
-                n--;
+        System.out.println("get_numeroMines(level)"+get_numeroMines(level));
+
+            for (int n = get_numeroMines(level) ; n != 0; ) {  
+                int x = random.nextInt(get_width());         
+                int y = random.nextInt(get_height());    
+    
+                if (!(tabMines[x][y] || (x == startX && y == startY))) {
+                    tabMines[x][y] = true;
+                    n--;
+                }
             }
-        }
+
+        System.out.println("Did it make to the end?");
     }
 
     void display() {
-        for (int i = 0; i < get_width(); i++) {
-            for (int j = 0; j < get_height(); j++) {  
+
+        System.out.println(" this.get_height()"+ this.get_height());
+        System.out.println(" this.get_width()"+ this.get_width());
+
+        for (int i = 0; i < this.get_width(); i++) {
+            for (int j = 0; j < this.get_height(); j++) {  
                 if (isMine(i, j))
                     System.out.print('x');
                 else 
@@ -161,9 +194,8 @@ public class Champ implements Serializable {
         return tabMines[x][y] ;
     }
 
-    void newPartie(int level) {
+    void newPartie() {
             tabMines = new boolean[get_width()][get_height()] ;  
             tabRevealed = new boolean[get_width()][get_height()];
     }
-
 }

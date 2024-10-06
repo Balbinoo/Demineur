@@ -29,7 +29,7 @@ public class App extends JFrame {
         cli = new Client();
         gui = new Gui(cas, compt, champ, cli, this);
         serv = new Serveur(champ, gui, cas);
-
+        //serv.main(null);
         revalidate();  
         repaint();     
         setContentPane(gui);
@@ -52,13 +52,28 @@ public class App extends JFrame {
     public void newPartie (int level, Compteur comp) {
         comp.resetScore();
         comp.startCompteurBackground(gui);
-        
         champ.set_level(level);
+
         champ.set_height(level);
         champ.set_width(level);
-        champ.newPartie(level); 
+        
+        champ.newPartie(); 
         gui.newPartie(level);
         gui.majPanelMines();
     }
     
+    public void newCustomPartie (int level, int mines, int width, int height, Compteur comp) {
+        comp.resetScore();
+        comp.startCompteurBackground(gui);
+        champ.set_level(level);
+
+        champ.set_CustomHeight(height);
+        champ.set_CustomWidth(width);
+        champ.setCustomTabNMines(mines);
+
+        champ.newPartie(); 
+        gui.newPartie(level);
+        gui.majPanelMines();
+    }
+
 }
