@@ -1,23 +1,38 @@
-import java.net.*; 
+import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.io.*;
 
 public class Serveur implements Serializable {
-    private static final long serialVersionUID = 1L; 
+    private final long serialVersionUID = 1L; 
     private int nbJoeur = 0;
     private Thread listenConexions, listenClient;
     private boolean listening, receiving;
-    private  Champ champ;
-    private  Gui gui;
-    private  Case ca;
+    private Champ champ;
+    private Gui gui;
+    private Case ca;
+    private Thread[] listConexions = new Thread[10];  // Initialize with an expected size
+    private List<String> playerNames = new ArrayList<>();
+    private ServerSocket gestSock;
+    private DataInputStream entree;
+    private DataOutputStream out;
 
-    Serveur(Champ champ, Gui gui, Case ca) {
+    Serveur(Champ champ, Case ca) {
         System.out.println("Démarrage du serveur"); 
         this.listening = false;
         this.receiving = false;
         this.champ = champ;
-        this.gui = gui;
+
         this.ca = ca;
         startServerInBackground(); 
+    }
+
+    public int get_nbJoueur(){
+        return nbJoeur;
+    }
+
+    public void count_nbJoueur(){
+        nbJoeur++;
     }
 
     public void startServerInBackground() {
@@ -29,63 +44,69 @@ public class Serveur implements Serializable {
     }
 
     public void initServer() {
-        ServerSocket serverSocket = null; // Declare the serverSocket here for later use
         try {
-            serverSocket = new ServerSocket(10000);
-            while (listening) { // Wait for client connections
-                System.out.println("En attente de connexion...");
-                Socket socket = serverSocket.accept(); 
-                System.out.println("connecté");
-
-                champ.init(0, 0, 0);
-                champ.display();
-
-                System.out.println("CHEGOU ATE AQUI!!");
-                listenClient = new Thread(() -> handleClient(socket, ++nbJoeur));
-                System.out.println("CHegou entre as treads aqui?");
-                listenClient.start();
-                System.out.println("CRIOU A TREAD?");
-            }
-        } catch (java.net.BindException e) {
-            System.out.println("C'est deja ouvert!!");
-            stopListening();
-            System.exit(0);
-        } catch (IOException e1) {
-            System.out.println("Exception different!!");
-            stopListening();
-            System.exit(0);
-        } finally {
-            // Ensure that the server socket is closed
-            if (serverSocket != null && !serverSocket.isClosed()) {
-                try {
-                    serverSocket.close();
-                } catch (IOException e) {
-                    System.out.println("Error closing server socket: " + e.getMessage());
+            gestSock = new ServerSocket(10000);
+            while (listening) { 
+                System.out.println("SERVEUR = En attente de connexion...");
+                Socket socket = gestSock.accept();
+                System.out.println("SERVEUR = connecté");
+                
+                entree = new DataInputStream(socket.getInputStream());
+                out = new DataOutputStream(socket.getOutputStream());
+              
+                count_nbJoueur(); // Increment only after starting the thread
+                System.out.println("SERVEUR = Waiting for player name... client number = " + get_nbJoueur());
+    
+                // Receive player name
+                String nomJoueur = entree.readUTF();
+                System.out.println("SERVEUR = Player connected: " + nomJoueur);
+                playerNames.add(nomJoueur);
+                
+                synchronized(this) {
+                    // Create and start a new thread for each client connection
+                    listConexions[get_nbJoueur()] = new Thread(() -> handleClient(get_nbJoueur(), socket, out));
+                    listConexions[get_nbJoueur()].start();
                 }
+
+                // Broadcast updated player list to all connected clients
+                //broadcastPlayerNames();
             }
+        } catch (IOException e) {
+            System.out.println("SERVEUR = Exception occurred: " + e.getMessage());
+            stopListening();
         }
     }
 
-    public void handleClient(Socket socket, int nbJoeur) {
+    public void handleClient(int nbJouer, Socket socket, DataOutputStream out) {
         try {
-            DataInputStream entree = new DataInputStream(socket.getInputStream());
-            DataOutputStream sortie = new DataOutputStream(socket.getOutputStream());
-            ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
-    
-            String nomJoueur = entree.readUTF();  
-            System.out.println(nomJoueur + " connecté"); 
-                
-            // Send player number
-            sortie.writeInt(nbJoeur);  
-            sortie.flush();  
-    
-            // Send the serialized Champ object to the client
-            objectOut.writeObject(champ);
-            objectOut.flush();  
-            
+
+
+            // Send the player number
+            System.out.println("SERVEUR - avant d'envoyer numero "+get_nbJoueur());
+            out.writeInt(get_nbJoueur());
+            out.flush();
+
+            // Send the updated player list
+            //out.writeUTF(nomJoueur);
+            //out.flush();
+
+            while(true){
+                for (String player : playerNames) {
+                    out.writeUTF(player);
+                    out.flush();
+                    System.out.println("SERVEUR LOOP player=" + player);
+                }
+                break;
+            }
+
         } catch (IOException e) {
+            System.out.println("Error in handling client: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+    
+    public List<String> get_playersName(){
+        return playerNames;
     }
     
     public void stopListening() {

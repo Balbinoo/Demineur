@@ -1,3 +1,5 @@
+import java.util.List;
+
 import javax.swing.*;
 
 /**
@@ -26,9 +28,11 @@ public class App extends JFrame {
         compt = new Compteur(1);  
         champ = new Champ();
         cas = new Case();
-        cli = new Client();
-        gui = new Gui(cas, compt, champ, cli, this);
-        serv = new Serveur(champ, gui, cas);
+        
+        serv = new Serveur(champ, cas);
+        gui = new Gui(serv, cas, compt, champ, this);
+        cli = new Client(this, gui);
+
         //serv.main(null);
         revalidate();  
         repaint();     
@@ -74,6 +78,19 @@ public class App extends JFrame {
         champ.newPartie(); 
         gui.newPartie(level);
         gui.majPanelMines();
+    }
+
+    public void connectClient(){
+        cli.connectServerBackground();
+    }
+
+    public void connectPlayer(String playerName){
+        cli.setPlayerName(playerName);
+        cli.sendPlayerName();
+    }
+
+    public void updateNames(List<String> playerNames){
+        gui.setconfigLeftPanel(playerNames);
     }
 
 }
