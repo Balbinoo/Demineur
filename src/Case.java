@@ -144,7 +144,7 @@ class Case extends JPanel implements MouseListener {
                     champ.display();  
                 }
 
-                if (champ.nbMinesAround(row, col) == 0) {
+                if (champ.nbMinesAround(row, col) == 0 && !app.isServerOn()) {
                     propagation(row, col);  // Propagate if zero mines around
                 }  else {
                     countCases();

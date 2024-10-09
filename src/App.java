@@ -22,6 +22,7 @@ public class App extends JFrame {
     static JFrame f;
     private Serveur serv;
     private Client cli;
+    private static boolean serverOn = false;
 
      App() {
         super("Demineur");
@@ -91,6 +92,14 @@ public class App extends JFrame {
 
     public void updateNames(List<String> playerNames){
         gui.setconfigLeftPanel(playerNames);
+    }
+
+    public void setServerOn(){
+        serverOn = true;
+    }
+
+    public boolean isServerOn(){
+        return serverOn;
     }
 
 }

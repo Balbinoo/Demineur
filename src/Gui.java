@@ -180,7 +180,7 @@ public class Gui extends JPanel implements ActionListener {
         // Create a StringJoiner to join player names with newline
         joiner = new StringJoiner("\n");
         for (String name : playerNames) {
-            System.out.println("GUI LOOP LEFT PANEL - Add name = " + name);
+            //System.out.println("GUI LOOP LEFT PANEL - Add name = " + name);
             joiner.add(name);
         }
     
@@ -294,7 +294,7 @@ public class Gui extends JPanel implements ActionListener {
     public void actionButtonConnexion(){
         // Connect to the server in the background
         app.connectClient();
-    
+        app.setServerOn();
         // Create a panel for input
         panelInput.setLayout(new FlowLayout());
 
@@ -305,6 +305,7 @@ public class Gui extends JPanel implements ActionListener {
     
         // Add the input panel to the center of the window
         remove(panelCentre); 
+        remove(panelNorth);
         add(panelInput, BorderLayout.CENTER);
         revalidate();
         repaint();
@@ -317,6 +318,7 @@ public class Gui extends JPanel implements ActionListener {
             // Reset the score and the GUI
             resetGui();
             // remove panelMines, add panel North and panel Centre
+            remove(panelLeft);
             remove(panelInput); 
             remove(panelCustom); 
             remove(panelMines); 
