@@ -15,6 +15,7 @@ public class Serveur implements Serializable {
     private Thread[] listConexions = new Thread[10];  // Initialize with an expected size
     private List<String> playerNames = new ArrayList<>();
     private List<Socket> clientSockets = new ArrayList<>();  // Thread-safe list
+    private List<ObjectOutputStream> outputs = new ArrayList<>();  // Thread-safe list
 
     private ServerSocket gestSock;
     private ObjectInputStream entree;
@@ -22,6 +23,7 @@ public class Serveur implements Serializable {
 
     Serveur(Champ champ, Case ca) {
         System.out.println("Démarrage du serveur"); 
+
         this.listening = false;
         this.receiving = false;
         this.champ = champ;
@@ -56,24 +58,26 @@ public class Serveur implements Serializable {
                 
                 entree = new ObjectInputStream(socket.getInputStream());
                 out = new ObjectOutputStream(socket.getOutputStream());
-              
 
+                // Receive player name from interface
                 System.out.println("SERVEUR = Waiting for player name... ");
-                // Receive player name
                 String nomJoueur = (String) entree.readObject();
                 System.out.println("SERVEUR = Player connected: " + nomJoueur);
                 playerNames.add(nomJoueur);
                 
-                synchronized(this) {
-                    // Create and start a new thread for each client connection
-                    clientSockets.add(socket);
-                    count_nbJoueur(); // Increment only after starting the thread
-                    listConexions[get_nbJoueur()] = new Thread(() -> handleClient(get_nbJoueur(), socket, out));
-                    listConexions[get_nbJoueur()].start();
-                }
+                // Create and start a new thread for each client connection
+                clientSockets.add(socket);
+                outputs.add(out);
+                count_nbJoueur(); // Increment only after starting the thread
 
+                broadcastPlayerNames();
+
+                listConexions[get_nbJoueur()] = new Thread(() -> handleClient(get_nbJoueur(), socket, out));
+                listConexions[get_nbJoueur()].start();
+    
+                
                 // Broadcast updated player list to all connected clients
-                //broadcastPlayerNames();
+                //broadcastPlayerNames(outputs);
             }
         } catch (IOException | ClassNotFoundException e) {
             System.out.println("SERVEUR = Exception occurred: " + e.getMessage());
@@ -81,28 +85,33 @@ public class Serveur implements Serializable {
         }
     }
 
+    public void broadcastPlayerNames() {
+
+        synchronized (outputs) {
+            for (ObjectOutputStream out : outputs) {
+                try {
+                    out.reset();  // Prevent redundant headers
+                    out.writeObject(MessageType.PLAYER_LIST);
+                    out.writeObject(playerNames);  // Send updated player names
+                    out.flush();
+                } catch (IOException e) {
+                    System.out.println("Error sending player list to client: " + e.getMessage());
+                }
+            }
+        }
+    }
+
     public void handleClient(int nbJouer, Socket socket, ObjectOutputStream out) {
         try {
 
-
             // Send the player number
             System.out.println("SERVEUR - avant d'envoyer numero "+get_nbJoueur());
+            
+            out.reset();
+            out.writeObject(MessageType.PLAYER_NUMBER);
             out.writeObject(get_nbJoueur());
             out.flush();
-
-            // Send the updated player list
-            //out.writeObject(nomJoueur);
-            //out.flush();
-
-            while(true){
-                for (String player : playerNames) {
-                    out.writeObject(player);
-                    out.flush();
-                    System.out.println("SERVEUR LOOP player=" + player);
-                }
-                break;
-            }
-
+ 
         } catch (IOException e) {
             System.out.println("Error in handling client: " + e.getMessage());
             e.printStackTrace();

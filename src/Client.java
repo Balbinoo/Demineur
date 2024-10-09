@@ -21,6 +21,7 @@ public class Client implements Serializable {
     private boolean receiving = false;
     private List<String> playerNames = new ArrayList<>();
     private String nomJoueur;
+    private Thread receivePlayersBroadcast;
 
     
     public ObjectOutputStream get_out(){
@@ -48,26 +49,60 @@ public class Client implements Serializable {
             sock = new Socket("localhost", 10000);
             out = new ObjectOutputStream(sock.getOutputStream());
             in = new ObjectInputStream(sock.getInputStream());
-    
-            // player number 
-            playerNumero = (int) in.readObject();                 
-            this.setPlayerNumero(playerNumero);
-            System.out.println("CLIENT - numero = "+ playerNumero);
 
-            
-            for(int i = 1; i <= playerNumero;i++){
-                nomJoueur = (String)in.readObject();
-                System.out.println("Client LOOP player " + nomJoueur);
-                playerNames.add(nomJoueur);
-                System.out.println("Ajoute le nom?");
-            }          
-            app.updateNames(playerNames);
-            //gui.setconfigLeftPanel(playerNames);
+            // player number 
+           // playerNumero = (int) in.readObject();                 
+           // this.setPlayerNumero(playerNumero);
+            //System.out.println("CLIENT - numero = "+ playerNumero);
+
+            // create thread to receive broqdcast
+            receivePlayersBroadcast = new Thread(() -> receiveBroadcast(in));
+            receivePlayersBroadcast.start();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }    
+    }  
+    
+    public void receiveBroadcast(ObjectInputStream in) {
+        receiving = true;
+        while (receiving) {
+            System.out.println("CLIENT - before receiving player names");
+            try {
+                Object message = in.readObject(); // Read the incoming object
+                
+                if (message instanceof MessageType) {
+                    MessageType messageType = (MessageType) message;
+                    switch (messageType) {
+                        case PLAYER_LIST:
+                            // Expecting the next object to be the player list
+                            playerNames = (ArrayList<String>) in.readObject();
+                            /*System.out.println("Player names received:");
+                            for (String player : playerNames) {
+                                System.out.println("player= " + player);
+                            }*/
+                            app.updateNames(playerNames);
+                            break;
+                        case PLAYER_NUMBER:
+                            // Expecting the next object to be the player number
+                            playerNumero = (Integer) in.readObject();
+                            this.setPlayerNumero(playerNumero);
+                            System.out.println("CLIENT - numero = " + playerNumero);
+                            break;
+                        default:
+                            System.out.println("Unknown message type: " + messageType);
+                            break;
+                    }
+                }
+    
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                System.out.println("Connection closed or data stream error.");
+                receiving = false; // Exit loop if stream closes or an error occurs
+            }
+        }
+    }
 
     public void sendPlayerName() {
         System.out.println("Client = Sending player name to server: " + this.getPlayerName());
@@ -77,6 +112,17 @@ public class Client implements Serializable {
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        }
+    }
+
+    public void stopReceiving() {
+        receiving = false;
+        if (receivePlayersBroadcast != null && receivePlayersBroadcast.isAlive()) {
+            try {
+                receivePlayersBroadcast.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
