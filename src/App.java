@@ -102,4 +102,15 @@ public class App extends JFrame {
         return serverOn;
     }
 
+    public void sendtoServer(int row, int col){        
+        cli.sendClickXY(row,col);
+    }
+
+    public void setClientMines(boolean [][] mines){
+        champ.set_tabMines(mines);
+        System.out.println("CLIENT - visualize champ:");
+        champ.display();
+
+    }
+
 }

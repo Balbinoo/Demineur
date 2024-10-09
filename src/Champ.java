@@ -119,7 +119,7 @@ public class Champ implements Serializable {
                 }
             }
 
-        System.out.println("Did it make to the end?");
+        System.out.println("INIT - Did it make to the end?");
     }
 
     void display() {
@@ -190,8 +190,18 @@ public class Champ implements Serializable {
         gui.repaint(); 
     }
 
-    boolean isMine (int x , int y){
+    public boolean isMine (int x , int y){
         return tabMines[x][y] ;
+    }
+
+    public boolean[][] get_tabMines(){
+        return tabMines;
+    }
+
+    public void set_tabMines(boolean [][]tabMinesFromServer){
+        System.out.println("CHAMP CLIENT - Did it get to before setTAbmines?");
+        tabMines = tabMinesFromServer;
+        System.out.println("CHAMP CLIENT - Did it get to after setTAbmines?");
     }
 
     void newPartie() {

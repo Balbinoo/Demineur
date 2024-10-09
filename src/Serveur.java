@@ -6,6 +6,7 @@ import java.io.*;
 
 public class Serveur implements Serializable {
     private final long serialVersionUID = 1L; 
+    private boolean firstClick = false;
     private int nbJoeur = 0;
     private Thread listenConexions, listenClient;
     private boolean listening, receiving;
@@ -18,7 +19,7 @@ public class Serveur implements Serializable {
     private List<ObjectOutputStream> outputs = new ArrayList<>();  // Thread-safe list
 
     private ServerSocket gestSock;
-    private ObjectInputStream entree;
+    private ObjectInputStream in;
     private ObjectOutputStream out;
 
     Serveur(Champ champ, Case ca) {
@@ -56,12 +57,12 @@ public class Serveur implements Serializable {
                 Socket socket = gestSock.accept();
                 System.out.println("SERVEUR = connecté");
                 
-                entree = new ObjectInputStream(socket.getInputStream());
+                in = new ObjectInputStream(socket.getInputStream());
                 out = new ObjectOutputStream(socket.getOutputStream());
 
                 // Receive player name from interface
                 System.out.println("SERVEUR = Waiting for player name... ");
-                String nomJoueur = (String) entree.readObject();
+                String nomJoueur = (String) in.readObject();
                 System.out.println("SERVEUR = Player connected: " + nomJoueur);
                 playerNames.add(nomJoueur);
                 
@@ -72,10 +73,9 @@ public class Serveur implements Serializable {
 
                 broadcastPlayerNames();
 
-                listConexions[get_nbJoueur()] = new Thread(() -> handleClient(get_nbJoueur(), socket, out));
+                listConexions[get_nbJoueur()] = new Thread(() -> handleClient(get_nbJoueur(), socket, out, in));
                 listConexions[get_nbJoueur()].start();
     
-                
                 // Broadcast updated player list to all connected clients
                 //broadcastPlayerNames(outputs);
             }
@@ -101,23 +101,59 @@ public class Serveur implements Serializable {
         }
     }
 
-    public void handleClient(int nbJouer, Socket socket, ObjectOutputStream out) {
+    public void handleClient(int nbJouer, Socket socket, ObjectOutputStream out, ObjectInputStream in) {
         try {
-
             // Send the player number
             System.out.println("SERVEUR - avant d'envoyer numero "+get_nbJoueur());
-            
             out.reset();
             out.writeObject(MessageType.PLAYER_NUMBER);
             out.writeObject(get_nbJoueur());
             out.flush();
- 
-        } catch (IOException e) {
+
+            if(!firstClick){
+                // Receive player click
+                List<Integer>xy =  (List<Integer>)in.readObject();
+                int x = xy.get(0);
+                int y = xy.get(1);
+                System.out.println("SERVEUR x="+x + " y="+y);
+
+                // initialize server
+                champ.init(x, y, 0);
+                System.out.println("SERVEUR - visualize champ:");
+                champ.display();
+                firstClick = true;
+            }
+
+            // send champ
+            broadcastMines(champ);
+/*
+            out.reset();
+            out.writeObject(MessageType.PLAYER_CHAMP);
+            out.writeObject(champ.get_tabMines());
+            out.flush();  */
+
+        } catch (IOException | ClassNotFoundException e) {
             System.out.println("Error in handling client: " + e.getMessage());
             e.printStackTrace();
         }
     }
     
+    public void broadcastMines(Champ champ) {
+
+        synchronized (outputs) {
+            for (ObjectOutputStream out : outputs) {
+                try {
+                    out.reset();
+                    out.writeObject(MessageType.PLAYER_CHAMP);
+                    out.writeObject(champ.get_tabMines());
+                    out.flush();   
+                } catch (IOException e) {
+                    System.out.println("Error sending player list to client: " + e.getMessage());
+                }
+            }
+        }
+    }
+
     public List<String> get_playersName(){
         return playerNames;
     }

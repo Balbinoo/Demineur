@@ -311,7 +311,6 @@ public class Gui extends JPanel implements ActionListener {
         repaint();
 
         submitButton.addActionListener(this);
-        
     }
     
     public void actionButtonBack(){

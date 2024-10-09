@@ -89,8 +89,16 @@ public class Client implements Serializable {
                             this.setPlayerNumero(playerNumero);
                             System.out.println("CLIENT - numero = " + playerNumero);
                             break;
+                        case PLAYER_CHAMP:
+                            boolean [][] mines = new boolean[5][5];
+                            mines = (boolean[][]) in.readObject();
+                            System.out.println("CLIENT - Envoyé le champ!");
+                            System.out.println("CLIENT - il y a quoi?"+mines[0][0]);
+                            //champ.display();
+                            app.setClientMines(mines);
+                            break;
                         default:
-                            System.out.println("Unknown message type: " + messageType);
+                            System.out.println("CLIENT - Unknown message type: " + messageType);
                             break;
                     }
                 }
@@ -110,9 +118,24 @@ public class Client implements Serializable {
             this.out.writeObject(this.getPlayerName());
             this.out.flush();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
+
+    public void sendClickXY(int row, int col){
+        System.out.println("Client = Sending player Click row: " + row + " col: " + col);
+
+        List<Integer>xy = new ArrayList<Integer>();
+        xy.add(row);
+        xy.add(col);
+
+        try {
+            this.out.writeObject(xy);
+            this.out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Client - Click XY envoyé");
     }
 
     public void stopReceiving() {
@@ -152,6 +175,7 @@ public class Client implements Serializable {
     public int getPlayerNumero() {
         return this.playerNumero;
     }
+
 
     public static void main(String[] args) {
         System.out.println("Client = Main do client");

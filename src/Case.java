@@ -139,9 +139,14 @@ class Case extends JPanel implements MouseListener {
         if (SwingUtilities.isLeftMouseButton(e)) {
             if (!leftClicked) {  
                 if (get_countCase() == 0) {
-                    System.out.println("First click");
-                    champ.init(row, col, champ.get_level());        
-                    champ.display();  
+                    if(app.isServerOn()){
+                        System.out.println("First click Client");
+                        app.sendtoServer(row,col);
+                    }else{
+                        System.out.println("First click");
+                        champ.init(row, col, champ.get_level());        
+                        champ.display();  
+                    }
                 }
 
                 if (champ.nbMinesAround(row, col) == 0 && !app.isServerOn()) {

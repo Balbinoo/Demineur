@@ -1,5 +1,5 @@
 import java.io.Serializable;
 
 public enum MessageType implements Serializable {
-    PLAYER_NUMBER, PLAYER_LIST
+    PLAYER_NUMBER, PLAYER_LIST, PLAYER_CHAMP
 }
