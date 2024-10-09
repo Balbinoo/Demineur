@@ -11,8 +11,8 @@ public class Client implements Serializable {
     private String playerName;
     private int playerNumero=0;
     private Socket sock;
-    private DataInputStream in;
-    private DataOutputStream out;
+    private ObjectInputStream in;
+    private ObjectOutputStream out;
     private Champ champ;  // Assuming Champ is a class you've defined
     private Gui gui;
     private Scanner scanner = new Scanner(System.in);
@@ -23,7 +23,7 @@ public class Client implements Serializable {
     private String nomJoueur;
 
     
-    public DataOutputStream get_out(){
+    public ObjectOutputStream get_out(){
         return out;
     }
 
@@ -46,17 +46,17 @@ public class Client implements Serializable {
     public void initConnection() {
         try {
             sock = new Socket("localhost", 10000);
-            out = new DataOutputStream(sock.getOutputStream());
-            in = new DataInputStream(sock.getInputStream());
+            out = new ObjectOutputStream(sock.getOutputStream());
+            in = new ObjectInputStream(sock.getInputStream());
     
             // player number 
-            playerNumero = in.readInt();                 
+            playerNumero = (int) in.readObject();                 
             this.setPlayerNumero(playerNumero);
             System.out.println("CLIENT - numero = "+ playerNumero);
 
             
             for(int i = 1; i <= playerNumero;i++){
-                nomJoueur = in.readUTF();
+                nomJoueur = (String)in.readObject();
                 System.out.println("Client LOOP player " + nomJoueur);
                 playerNames.add(nomJoueur);
                 System.out.println("Ajoute le nom?");
@@ -72,7 +72,7 @@ public class Client implements Serializable {
     public void sendPlayerName() {
         System.out.println("Client = Sending player name to server: " + this.getPlayerName());
         try {
-            this.out.writeUTF(this.getPlayerName());
+            this.out.writeObject(this.getPlayerName());
             this.out.flush();
         } catch (IOException e) {
             // TODO Auto-generated catch block
