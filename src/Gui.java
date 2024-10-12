@@ -466,4 +466,27 @@ public class Gui extends JPanel implements ActionListener {
     public int showOptionDialog(Case cas, String title, String message, String type){
         return JOptionPane.showOptionDialog(cas, message, title,JOptionPane.YES_NO_OPTION, type.equals("info") ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE, null, new String[]{"New Game", "Quit"}, "New Game");
     }
+
+    public void updateRevealedMines(boolean [][]tabRevealedFromServer){
+
+        System.out.println("CLIENT - Did it get inside updateReveal?");
+
+        Case current;
+        for( int i =0; i < champ.get_width(); i++){
+            for(int j = 0; j < champ.get_height(); j++){
+                System.out.print(tabRevealedFromServer[i][j]+ " ");
+                if(tabRevealedFromServer[i][j]){
+                    current = getCase(i, j);
+                    current.paintCaseServeur(i,j);
+                }
+            }
+            System.out.println(" ");
+        }
+    }
+
+    public void updatePaintXY(int row, int col){
+        Case current = getCase(row, col);
+        current.paintCaseServeur(row,col);
+    }
+
 }

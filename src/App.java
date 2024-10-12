@@ -30,7 +30,7 @@ public class App extends JFrame {
         champ = new Champ();
         cas = new Case();
         
-        serv = new Serveur(champ, cas);
+        serv = new Serveur(this, champ, cas);
         gui = new Gui(serv, cas, compt, champ, this);
         cli = new Client(this, gui);
 
@@ -111,6 +111,16 @@ public class App extends JFrame {
         System.out.println("CLIENT - visualize champ:");
         champ.display();
 
+    }
+
+    public void setClientRevealed(boolean [][] revealed){
+        champ.set_tabRevealed(revealed);
+        gui.updateRevealedMines(revealed);
+    }
+    
+    public void setUpdateClientXY(int row, int col){
+        System.out.println("CLIENT broadcast - row:"+ row + " Col:"+col);
+        gui.updatePaintXY(row,col);
     }
 
 }

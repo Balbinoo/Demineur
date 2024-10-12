@@ -6,11 +6,12 @@ import java.io.*;
 
 public class Serveur implements Serializable {
     private final long serialVersionUID = 1L; 
-    private boolean firstClick = false;
+    private static boolean firstClick = false;
     private int nbJoeur = 0;
     private Thread listenConexions, listenClient;
     private boolean listening, receiving;
     private Champ champ;
+    private App app;
     private Gui gui;
     private Case ca;
     private Thread[] listConexions = new Thread[10];  // Initialize with an expected size
@@ -22,9 +23,9 @@ public class Serveur implements Serializable {
     private ObjectInputStream in;
     private ObjectOutputStream out;
 
-    Serveur(Champ champ, Case ca) {
+    Serveur(App ap,Champ champ, Case ca) {
         System.out.println("Démarrage du serveur"); 
-
+        this.app = ap;
         this.listening = false;
         this.receiving = false;
         this.champ = champ;
@@ -102,43 +103,91 @@ public class Serveur implements Serializable {
     }
 
     public void handleClient(int nbJouer, Socket socket, ObjectOutputStream out, ObjectInputStream in) {
+
+        int x, y;
+        // send champ
+        if(firstClick){
+            broadcastTabMines(champ);
+            broadcastTabRevealed(champ);
+        }
+
         try {
             // Send the player number
-            System.out.println("SERVEUR - avant d'envoyer numero "+get_nbJoueur());
             out.reset();
             out.writeObject(MessageType.PLAYER_NUMBER);
             out.writeObject(get_nbJoueur());
             out.flush();
+            System.out.println("SERVEUR - apres d'envoyer numero "+get_nbJoueur());
+            receiving = true;
 
-            if(!firstClick){
+            while (receiving) {
+                System.out.println("SERVEUR - Inside loop receiving");
+
                 // Receive player click
                 List<Integer>xy =  (List<Integer>)in.readObject();
-                int x = xy.get(0);
-                int y = xy.get(1);
+                x = xy.get(0);
+                y = xy.get(1);
+                champ.setRevealed(x, y);
+
                 System.out.println("SERVEUR x="+x + " y="+y);
 
-                // initialize server
-                champ.init(x, y, 0);
-                System.out.println("SERVEUR - visualize champ:");
-                champ.display();
-                firstClick = true;
-            }
-
-            // send champ
-            broadcastMines(champ);
-/*
-            out.reset();
-            out.writeObject(MessageType.PLAYER_CHAMP);
-            out.writeObject(champ.get_tabMines());
-            out.flush();  */
+                if(!firstClick){
+                    // initialize server
+                    champ.init(x, y, 0);
+                    System.out.println("SERVEUR - visualize champ:");
+                    champ.display();
+                    firstClick = true;
+                    broadcastTabMines(champ);
+                }else{
+                    // send champ
+                    broadcastXY(x, y);
+                }
+        }
 
         } catch (IOException | ClassNotFoundException e) {
             System.out.println("Error in handling client: " + e.getMessage());
             e.printStackTrace();
         }
     }
-    
-    public void broadcastMines(Champ champ) {
+
+    public void broadcastXY(int row, int col) {
+        System.out.println("SERVEUR - Sending X et Y");
+        List<Integer>xy = new ArrayList<Integer>();
+        xy.add(row);
+        xy.add(col);
+
+        synchronized (outputs) {
+            for (ObjectOutputStream out : outputs) {
+                try {
+                    out.reset();
+                    out.writeObject(MessageType.PLAYER_XY);
+                    out.writeObject(xy);
+                    out.flush();
+                    out.flush();   
+                } catch (IOException e) {
+                    System.out.println("Error sending player list to client: " + e.getMessage());
+                }
+            }
+        }
+    }
+
+    public void broadcastTabRevealed(Champ champ) {
+
+        synchronized (outputs) {
+            for (ObjectOutputStream out : outputs) {
+                try {
+                    out.reset();
+                    out.writeObject(MessageType.PLAYER_REVEALED);
+                    out.writeObject(champ.get_tabRevealed());
+                    out.flush();   
+                } catch (IOException e) {
+                    System.out.println("Error sending player list to client: " + e.getMessage());
+                }
+            }
+        }
+    }
+
+    public void broadcastTabMines(Champ champ) {
 
         synchronized (outputs) {
             for (ObjectOutputStream out : outputs) {

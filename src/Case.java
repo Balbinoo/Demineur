@@ -30,6 +30,17 @@ class Case extends JPanel implements MouseListener {
         caseGeneralConfig();        
     }
 
+    public Case(int row, int col, Champ champ, App app, boolean leftClicked) {
+        this.champ = champ;
+        this.app = app;
+        this.txt = " ";
+        this.row = row;
+        this.col = col;
+        this.leftClicked = leftClicked;
+
+        caseGeneralConfig();        
+    }
+
     public int getRow() {
         return this.row;
     }
@@ -147,13 +158,20 @@ class Case extends JPanel implements MouseListener {
                         champ.init(row, col, champ.get_level());        
                         champ.display();  
                     }
+                } else {
+                    if(app.isServerOn()){
+                        //paintCaseServeur();
+                        System.out.println("New click Client");
+                        app.sendtoServer(row,col);
+                    }                 
+                    
                 }
+                countCases(); 
+                
 
                 if (champ.nbMinesAround(row, col) == 0 && !app.isServerOn()) {
-                    propagation(row, col);  // Propagate if zero mines around
-                }  else {
-                    countCases();
-                }      
+                    propagation(row, col);  // Propagate if zero mines around            
+                }
 
                 leftClicked = true;  
                 rightClicked = false;
@@ -213,7 +231,18 @@ class Case extends JPanel implements MouseListener {
         }
 
         countCases();
+    }
 
+    public void paintCaseServeur(int x, int y){
+        Case currentCase = gui.getCase(x, y);
+        currentCase.leftClicked = true;
+        champ.setRevealed(x, y);
+
+        int minesAround = champ.nbMinesAround(x, y);
+
+        //currentCase.setBackground(Color.ORANGE);
+        currentCase.setTxt(Integer.toString(minesAround));
+        currentCase.repaint();
     }
 
     public void mouseEntered(MouseEvent e) {}

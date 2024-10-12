@@ -27,7 +27,7 @@ public class Champ implements Serializable {
     Random random = new Random();
 
     private int [] tabSize = {5,10,20} ;
-    private int [] tabNMines = {5,15,40,30} ;
+    private int [] tabNMines = {4,15,40,30} ;
 
     public Champ( ) {
         tabMines = new boolean[get_height()][get_width()]; // do not erase this
@@ -124,9 +124,6 @@ public class Champ implements Serializable {
 
     void display() {
 
-        System.out.println(" this.get_height()"+ this.get_height());
-        System.out.println(" this.get_width()"+ this.get_width());
-
         for (int i = 0; i < this.get_width(); i++) {
             for (int j = 0; j < this.get_height(); j++) {  
                 if (isMine(i, j))
@@ -198,10 +195,18 @@ public class Champ implements Serializable {
         return tabMines;
     }
 
+    public boolean[][] get_tabRevealed(){
+        return tabRevealed;
+    }
+
     public void set_tabMines(boolean [][]tabMinesFromServer){
-        System.out.println("CHAMP CLIENT - Did it get to before setTAbmines?");
         tabMines = tabMinesFromServer;
-        System.out.println("CHAMP CLIENT - Did it get to after setTAbmines?");
+        System.out.println("CHAMP CLIENT - It did setMines");
+    }
+
+    public void set_tabRevealed(boolean [][]tabRevealedFromServer){
+        tabRevealed = tabRevealedFromServer;
+        System.out.println("CHAMP CLIENT - It did setRevealed");
     }
 
     void newPartie() {

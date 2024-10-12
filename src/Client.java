@@ -67,7 +67,7 @@ public class Client implements Serializable {
     public void receiveBroadcast(ObjectInputStream in) {
         receiving = true;
         while (receiving) {
-            System.out.println("CLIENT - before receiving player names");
+            System.out.println("CLIENT - Inside BroadCast loop");
             try {
                 Object message = in.readObject(); // Read the incoming object
                 
@@ -77,10 +77,6 @@ public class Client implements Serializable {
                         case PLAYER_LIST:
                             // Expecting the next object to be the player list
                             playerNames = (ArrayList<String>) in.readObject();
-                            /*System.out.println("Player names received:");
-                            for (String player : playerNames) {
-                                System.out.println("player= " + player);
-                            }*/
                             app.updateNames(playerNames);
                             break;
                         case PLAYER_NUMBER:
@@ -92,11 +88,20 @@ public class Client implements Serializable {
                         case PLAYER_CHAMP:
                             boolean [][] mines = new boolean[5][5];
                             mines = (boolean[][]) in.readObject();
-                            System.out.println("CLIENT - Envoyé le champ!");
-                            System.out.println("CLIENT - il y a quoi?"+mines[0][0]);
-                            //champ.display();
+                            System.out.println("CLIENT - champ reçu!");
                             app.setClientMines(mines);
                             break;
+                        case PLAYER_REVEALED:
+                            boolean [][] revealed = new boolean[5][5];
+                            revealed = (boolean[][]) in.readObject();
+                            System.out.println("CLIENT - revealed reçu!");
+                            app.setClientRevealed(revealed);
+                        break;
+                        case PLAYER_XY:
+                            // Receive player click
+                            List<Integer>xy =  (List<Integer>)in.readObject();
+                            app.setUpdateClientXY(xy.get(0), xy.get(1));
+                        break;
                         default:
                             System.out.println("CLIENT - Unknown message type: " + messageType);
                             break;
@@ -123,7 +128,7 @@ public class Client implements Serializable {
     }
 
     public void sendClickXY(int row, int col){
-        System.out.println("Client = Sending player Click row: " + row + " col: " + col);
+        System.out.println("Client = player Click row: " + row + " col: " + col);
 
         List<Integer>xy = new ArrayList<Integer>();
         xy.add(row);
@@ -135,7 +140,6 @@ public class Client implements Serializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("Client - Click XY envoyé");
     }
 
     public void stopReceiving() {
