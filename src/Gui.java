@@ -49,6 +49,7 @@ public class Gui extends JPanel implements ActionListener {
     private JLabel labelName = new JLabel();
     private JLabel label = new JLabel("Score");
     private JLabel labelScore = new JLabel("0");
+    private JLabel playerName = new JLabel("NONE");
     private JPanel panelMines = new JPanel();
     private JLabel enterName = new JLabel("Enter your name: ");
 
@@ -167,18 +168,37 @@ public class Gui extends JPanel implements ActionListener {
     }
 
     public void actionButtonConnexionSubmit() {
-        String playerName = nameField.getText();
+        String name = nameField.getText();
 
-        if (!playerName.isEmpty()) {
-            app.connectPlayer(playerName);    
-            System.out.println("Gui - Player name submitted: " + playerName);    
-            // Start a new game if this method is intended to do so
+        setPlayerName(name);
+        panelNorth.remove(labelScore);
+        panelNorth.remove(label);
+    
+        // Set font sizes
+        playerName.setFont(new Font("Arial", Font.BOLD, 20));
+        label.setFont(new Font("Arial", Font.BOLD, 20));
+        labelScore.setFont(new Font("Arial", Font.BOLD, 20));
+
+        // Add some space between playerName and labelScore using an empty border
+        label.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0)); // top, left, bottom, right
+
+        // Add components to panelNorth
+        panelNorth.add(playerName);
+        panelNorth.add(label);    
+        panelNorth.add(labelScore);
+
+        // Ensure the panel is updated
+        panelNorth.revalidate();
+        panelNorth.repaint();
+
+        if (!name.isEmpty()) {
+            app.connectPlayer(name);    
+            System.out.println("Gui - Player name submitted: " + name);    
             actionButtonNew();
         }
     }
 
     public void setconfigLeftPanel(List<String> playerNames){    
-        // Create a StringJoiner to join player names with newline
         joiner = new StringJoiner("\n");
         for (String name : playerNames) {
             joiner.add(name);
@@ -187,7 +207,6 @@ public class Gui extends JPanel implements ActionListener {
         playerNamesArea.setText("");  
 
         // Append the new player name to the JTextArea
-        playerNamesArea.setPreferredSize(new Dimension(10, 10)); // Adjust width & height as needed
         playerNamesArea.setText(joiner.toString());
         playerNamesArea.setEditable(false);  
 
@@ -439,6 +458,10 @@ public class Gui extends JPanel implements ActionListener {
 
     public void setLabelScore(int score){
         labelScore.setText(String.valueOf(score));
+    }
+
+    public void setPlayerName(String name){
+        playerName.setText(name);
     }
 
     public int showOptionDialog(Case cas, String title, String message, String type){

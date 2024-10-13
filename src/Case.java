@@ -174,8 +174,6 @@ class Case extends JPanel implements MouseListener {
                     comp.addScore(gui);
                 }
                     
-                
-
                 leftClicked = true;  
                 rightClicked = false;
                 

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import javax.swing.JOptionPane;
+
 public class Client implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -127,6 +129,22 @@ public class Client implements Serializable {
                             List<Integer>xy =  (List<Integer>)in.readObject();
                             app.setUpdateClientXY(xy.get(0), xy.get(1));
                         break;
+                        case GAME_OVER:
+                            System.out.println("CLIENT - GAMEOVER");
+                            int[] scorePlayers = (int[]) in.readObject();
+
+                            // Build the message string for the JOptionPane
+                            StringBuilder infoMessage = new StringBuilder("Scores:\n");
+                            int j=0;
+                            for (int i = 1; i <= playerNames.size(); i++) {
+                                String name = playerNames.get(j++);
+                                infoMessage.append(name).append(" : ").append(scorePlayers[i]).append("\n");
+                            }
+
+                            // Show the scores in a JOptionPane
+                            JOptionPane.showMessageDialog(null, infoMessage.toString(), "Game Over", JOptionPane.INFORMATION_MESSAGE);
+                        break;
+                        
                         default:
                             System.out.println("CLIENT - Unknown message type: " + messageType);
                             break;
@@ -204,7 +222,6 @@ public class Client implements Serializable {
     public int getPlayerNumero() {
         return this.playerNumero;
     }
-
 
     public static void main(String[] args) {
         System.out.println("Client = Main do client");

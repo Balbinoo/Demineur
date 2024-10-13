@@ -170,14 +170,17 @@ public class Champ implements Serializable {
         resetGame(gui, comp, cas);
         System.out.println("GAMEOVER - countCase: "+cas.get_countCase());
 
-        int choice = gui.showOptionDialog(cas,  "Game Over","You're a Loser!", "Lose");
+        if(app.isServerOn()){
+            System.out.println("GAMEOVER - ALL PLAYERS");
+        }else{
+            int choice = gui.showOptionDialog(cas,  "Game Over","You're a Loser!", "Lose");
         
-        if (choice == JOptionPane.YES_OPTION)
-            app.newPartie(this.get_level(), comp);
-            
-        else if (choice == JOptionPane.NO_OPTION) 
-            app.quit();
-        
+            if (choice == JOptionPane.YES_OPTION)
+                app.newPartie(this.get_level(), comp);
+                
+            else if (choice == JOptionPane.NO_OPTION) 
+                app.quit();
+        }        
     }
 
     public void resetGame(Gui gui, Compteur comp, Case cas){

@@ -14,6 +14,7 @@ public class Serveur implements Serializable {
     private App app;
     private Gui gui;
     private Case ca;
+    private int[] scorePlayers = new int[20];
     private Thread[] listConexions = new Thread[10];  // Initialize with an expected size
     private List<String> playerNames = new ArrayList<>();
     private List<Socket> clientSockets = new ArrayList<>();  // Thread-safe list
@@ -58,6 +59,22 @@ public class Serveur implements Serializable {
         firstClick = true;
     }
 
+    public void countScorePlayer(int player){
+        scorePlayers[player]++;
+    }
+
+    public void unCountScorePlayer(int player){
+        scorePlayers[player]--;
+    }
+
+    public int getScorePlayer(int player){
+        return  scorePlayers[player];
+    }
+
+    public int[] getAllScorePlayers(){
+        return scorePlayers;
+    }
+
     public void startServerInBackground() {
         if (!listening) {
             listening = true;
@@ -86,35 +103,19 @@ public class Serveur implements Serializable {
                 // Create and start a new thread for each client connection
                 clientSockets.add(socket);
                 outputs.add(out);
-                count_nbJoueur(); // Increment only after starting the thread
-
+                
                 broadcastPlayerNames();
 
                 listConexions[get_nbJoueur()] = new Thread(() -> handleClient(get_nbJoueur(), socket, out, in));
                 listConexions[get_nbJoueur()].start();
-    
+
+                count_nbJoueur(); // Increment only after starting the thread
                 // Broadcast updated player list to all connected clients
                 //broadcastPlayerNames(outputs);
             }
         } catch (IOException | ClassNotFoundException e) {
             System.out.println("SERVEUR = Exception occurred: " + e.getMessage());
             stopListening();
-        }
-    }
-
-    public void broadcastPlayerNames() {
-
-        synchronized (outputs) {
-            for (ObjectOutputStream out : outputs) {
-                try {
-                    out.reset();  // Prevent redundant headers
-                    out.writeObject(MessageType.PLAYER_LIST);
-                    out.writeObject(playerNames);  // Send updated player names
-                    out.flush();
-                } catch (IOException e) {
-                    System.out.println("Error sending player list to client: " + e.getMessage());
-                }
-            }
         }
     }
 
@@ -145,7 +146,8 @@ public class Serveur implements Serializable {
                 x = xy.get(0);
                 y = xy.get(1);
                 champ.setRevealed(x, y);
-
+                countScorePlayer(get_nbJoueur());
+                System.out.println("ScorePlayer:"+get_nbJoueur()+" : "+getScorePlayer(get_nbJoueur()));
                 System.out.println("SERVEUR x="+x + " y="+y);
 
                 if(!firstClick){
@@ -161,8 +163,20 @@ public class Serveur implements Serializable {
                     // send champ
                     broadcastXY(x, y);
                 }
-        }
 
+                if(champ.isMine(x, y)){
+                    unCountScorePlayer(get_nbJoueur());
+                    System.out.println("Stepped in a mine!");
+                    System.out.println("Score:");
+                    int j=0;
+                    for (int i = 1; i <= playerNames.size(); i++) {
+                        String name = playerNames.get(j++);
+                        System.out.println(name + " : " + getScorePlayer(i));
+                    }
+                    broadcastGameOver();
+                    receiving = false;
+                }
+            }
         } catch (IOException | ClassNotFoundException e) {
             System.out.println("Client Was disconnected! ");
             uncount_nbJoueur();
@@ -183,6 +197,22 @@ public class Serveur implements Serializable {
         }
     }
 
+    public void broadcastPlayerNames() {
+
+        synchronized (outputs) {
+            for (ObjectOutputStream out : outputs) {
+                try {
+                    out.reset();  // Prevent redundant headers
+                    out.writeObject(MessageType.PLAYER_LIST);
+                    out.writeObject(playerNames);  // Send updated player names
+                    out.flush();
+                } catch (IOException e) {
+                    System.out.println("Error sending player list to client: " + e.getMessage());
+                }
+            }
+        }
+    }
+
     public void broadcastXY(int row, int col) {
         System.out.println("SERVEUR - Sending X et Y");
         List<Integer>xy = new ArrayList<Integer>();
@@ -195,6 +225,23 @@ public class Serveur implements Serializable {
                     out.reset();
                     out.writeObject(MessageType.PLAYER_XY);
                     out.writeObject(xy);
+                    out.flush();
+                    out.flush();   
+                } catch (IOException e) {
+                    System.out.println("Error sending player  X and Y to client: " + e.getMessage());
+                }
+            }
+        }
+    }
+
+    public void broadcastGameOver() {
+
+        synchronized (outputs) {
+            for (ObjectOutputStream out : outputs) {
+                try {
+                    out.reset();
+                    out.writeObject(MessageType.GAME_OVER);
+                    out.writeObject(getAllScorePlayers());
                     out.flush();
                     out.flush();   
                 } catch (IOException e) {
@@ -214,7 +261,7 @@ public class Serveur implements Serializable {
                     out.writeObject(champ.get_tabRevealed());
                     out.flush();   
                 } catch (IOException e) {
-                    System.out.println("Error sending player list to client: " + e.getMessage());
+                    System.out.println("Error sending champ revealed to client: " + e.getMessage());
                 }
             }
         }
@@ -230,7 +277,7 @@ public class Serveur implements Serializable {
                     out.writeObject(champ.get_tabMines());
                     out.flush();   
                 } catch (IOException e) {
-                    System.out.println("Error sending player list to client: " + e.getMessage());
+                    System.out.println("Error sending champ of mines to client: " + e.getMessage());
                 }
             }
         }
