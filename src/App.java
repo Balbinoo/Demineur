@@ -123,4 +123,12 @@ public class App extends JFrame {
         gui.updatePaintXY(row,col);
     }
 
+    public void disconnectClient(){
+        cli.stopListening();
+        cli.stopReceiving();
+        cli.close_in();
+        cli.close_out();
+        cli.close_socket();
+    }
+
 }

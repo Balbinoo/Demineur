@@ -28,6 +28,39 @@ public class Client implements Serializable {
         return out;
     }
 
+    public void close_out(){
+        try {
+            get_out().close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public ObjectInputStream get_in(){
+        return in;
+    }
+
+    public void close_in(){
+        try {
+            get_in().close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Socket get_socket(){
+        return sock;
+    }
+
+    public void close_socket(){
+        try {
+            get_socket().close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public List<String> get_playersNames(){
         return playerNames;
     }
@@ -50,11 +83,6 @@ public class Client implements Serializable {
             out = new ObjectOutputStream(sock.getOutputStream());
             in = new ObjectInputStream(sock.getInputStream());
 
-            // player number 
-           // playerNumero = (int) in.readObject();                 
-           // this.setPlayerNumero(playerNumero);
-            //System.out.println("CLIENT - numero = "+ playerNumero);
-
             // create thread to receive broqdcast
             receivePlayersBroadcast = new Thread(() -> receiveBroadcast(in));
             receivePlayersBroadcast.start();
@@ -75,12 +103,10 @@ public class Client implements Serializable {
                     MessageType messageType = (MessageType) message;
                     switch (messageType) {
                         case PLAYER_LIST:
-                            // Expecting the next object to be the player list
                             playerNames = (ArrayList<String>) in.readObject();
                             app.updateNames(playerNames);
                             break;
                         case PLAYER_NUMBER:
-                            // Expecting the next object to be the player number
                             playerNumero = (Integer) in.readObject();
                             this.setPlayerNumero(playerNumero);
                             System.out.println("CLIENT - numero = " + playerNumero);
@@ -98,7 +124,6 @@ public class Client implements Serializable {
                             app.setClientRevealed(revealed);
                         break;
                         case PLAYER_XY:
-                            // Receive player click
                             List<Integer>xy =  (List<Integer>)in.readObject();
                             app.setUpdateClientXY(xy.get(0), xy.get(1));
                         break;
@@ -183,7 +208,5 @@ public class Client implements Serializable {
 
     public static void main(String[] args) {
         System.out.println("Client = Main do client");
-        //Client client = new Client();
-        //client.connectServerBackground();
     }
 }

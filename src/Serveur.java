@@ -42,6 +42,22 @@ public class Serveur implements Serializable {
         nbJoeur++;
     }
 
+    public void uncount_nbJoueur(){
+        nbJoeur--;
+    }
+
+    public void reset_nbJoueur(){
+        nbJoeur++;
+    }
+
+    public boolean get_firstClick(){
+        return firstClick;
+    }
+
+    public void set_firstClick(){
+        firstClick = true;
+    }
+
     public void startServerInBackground() {
         if (!listening) {
             listening = true;
@@ -106,11 +122,11 @@ public class Serveur implements Serializable {
 
         int x, y;
         // send champ
-        if(firstClick){
+        if(get_firstClick()){
             broadcastTabMines(champ);
-            broadcastTabRevealed(champ);
+            broadcastTabRevealed(champ);  
         }
-
+            
         try {
             // Send the player number
             out.reset();
@@ -136,8 +152,9 @@ public class Serveur implements Serializable {
                     champ.init(x, y, 0);
                     System.out.println("SERVEUR - visualize champ:");
                     champ.display();
-                    firstClick = true;
+                    set_firstClick();
                     broadcastTabMines(champ);
+                    broadcastXY(x, y);                    
                 }else{
                     // send champ
                     broadcastXY(x, y);
@@ -145,8 +162,22 @@ public class Serveur implements Serializable {
         }
 
         } catch (IOException | ClassNotFoundException e) {
-            System.out.println("Error in handling client: " + e.getMessage());
-            e.printStackTrace();
+            System.out.println("Client Was disconnected! ");
+            uncount_nbJoueur();
+            playerNames.remove(this.get_nbJoueur());
+            clientSockets.remove(this.get_nbJoueur());
+            outputs.remove(this.get_nbJoueur());
+
+            broadcastPlayerNames();
+            if(get_nbJoueur() == 0){
+                playerNames.clear();           
+                clientSockets.clear();         
+                outputs.clear();               
+                //stopListening();
+                stopReceiving();
+                firstClick = false;
+            }
+
         }
     }
 

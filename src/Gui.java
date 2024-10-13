@@ -132,7 +132,7 @@ public class Gui extends JPanel implements ActionListener {
         
         //System.out.println("LEvelcombobox"+ levelComboBox.getSelectedIndex());
         // Remove combobox, panel centre, and add panelMines
-
+        remove(panelLeft);
         remove(panelInput); 
         remove(panelCustom); 
         remove(panelCentre);
@@ -146,6 +146,25 @@ public class Gui extends JPanel implements ActionListener {
             app.newPartie(levelComboBox.getSelectedIndex(), compt);
         }
     }
+    
+    public void actionButtonBack(){
+        // Reset the score and the GUI
+        resetGui();
+        // remove panelMines, add panel North and panel Centre
+        remove(panelLeft);
+        remove(panelInput); 
+        remove(panelCustom); 
+        remove(panelMines); 
+        remove(panelInput);
+
+        //if(app.isServerOn()){
+       //     app.disconnectClient();
+       // }
+       
+        panelNorth.add(levelComboBox);
+        add(panelCentre, BorderLayout.CENTER);    
+    }
+
     public void actionButtonConnexionSubmit() {
         String playerName = nameField.getText();
         if (!playerName.isEmpty()) {
@@ -155,46 +174,24 @@ public class Gui extends JPanel implements ActionListener {
     
             // Start a new game if this method is intended to do so
             actionButtonNew();
-    
-            /* Add the submitted player name to the JTextArea
-            playerNamesArea.append(playerName + "\n");  // Append the name with a newline
-            playerNamesArea.setEditable(false);  // Ensure JTextArea is read-only
-    
-            // Clear and update panelLeft to include playerNamesArea
-            panelLeft.removeAll();
-            panelLeft.add(playerNamesArea);
-            
-            // Add panelLeft to the main layout if not already added
-            add(panelLeft, BorderLayout.WEST);
-    
-            // Refresh the panel to display the updated names
-            panelLeft.revalidate();
-            panelLeft.repaint();*/
         }
     }
-    
 
-    public void setconfigLeftPanel(List<String> playerNames){
-        System.out.println("Inside setconfigLeftPanel");
-    
+    public void setconfigLeftPanel(List<String> playerNames){    
         // Create a StringJoiner to join player names with newline
         joiner = new StringJoiner("\n");
         for (String name : playerNames) {
-            //System.out.println("GUI LOOP LEFT PANEL - Add name = " + name);
             joiner.add(name);
         }
-    
         // Set the joined names to playerNamesArea
-        playerNamesArea.setText("");  // Clear previous names
+        playerNamesArea.setText("");  
 
         // Append the new player name to the JTextArea
         playerNamesArea.setText(joiner.toString());
-        playerNamesArea.setEditable(false);  // Make JTextArea read-only
-        
+        playerNamesArea.setEditable(false);  
 
         // Add playerNamesArea to panelLeft and update it
-        //panelLeft.removeAll();  // Clear any existing components
-        panelLeft.add(playerNamesArea);  // Add playerNamesArea to panelLeft
+        panelLeft.add(playerNamesArea);  
         panelLeft.revalidate();
         panelLeft.repaint();
         
@@ -212,14 +209,9 @@ public class Gui extends JPanel implements ActionListener {
         remove(panelCentre);
         panelNorth.remove(levelComboBox);
 
-        //add(panelNorth, BorderLayout.CENTER);
-        //add(panelSouth, BorderLayout.CENTER);
         add(panelMines, BorderLayout.CENTER);
 
-        // Start a new game and compteur
-
         app.newCustomPartie(levelComboBox.getSelectedIndex(),mines,width, height,compt);
-
     }
 
     public void actionSelectedCustom() {
@@ -240,7 +232,7 @@ public class Gui extends JPanel implements ActionListener {
         panelCustom.setBorder(BorderFactory.createTitledBorder("Custom Game Settings"));
     
         // Layout configuration: Position each component with grid positioning
-    
+
         // First row: "Grid Size (Width x Height):" label
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -282,15 +274,11 @@ public class Gui extends JPanel implements ActionListener {
     
         // Add the custom panel to the main layout
         add(panelCustom, BorderLayout.CENTER);
-        //revalidate();
-        //repaint();
     
         // Attach action listener to the button
         butCustom.addActionListener(this);
     }
     
-
-
     public void actionButtonConnexion(){
         // Connect to the server in the background
         app.connectClient();
@@ -311,19 +299,6 @@ public class Gui extends JPanel implements ActionListener {
         repaint();
 
         submitButton.addActionListener(this);
-    }
-    
-    public void actionButtonBack(){
-            // Reset the score and the GUI
-            resetGui();
-            // remove panelMines, add panel North and panel Centre
-            remove(panelLeft);
-            remove(panelInput); 
-            remove(panelCustom); 
-            remove(panelMines); 
-            remove(panelInput);
-            panelNorth.add(levelComboBox);
-            add(panelCentre, BorderLayout.CENTER);    
     }
 
     public void actionAbout(){
@@ -430,13 +405,11 @@ public class Gui extends JPanel implements ActionListener {
     public void newPartie(int level){
         labelScore.setText("0");
         panelMines.removeAll();
+        
         app.pack();
     }
 
     public void majPanelMines() {
-
-        //System.out.println("champ.get_width()= "+champ.get_width());
-        //System.out.println("champ.get_height()= "+champ.get_height());
 
         cas = new Case[champ.get_width()][champ.get_height()];
     

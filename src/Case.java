@@ -58,6 +58,7 @@ class Case extends JPanel implements MouseListener {
     }
 
     public void countCases() {
+        System.out.println("Entrou aqui quando?");
         countCase++;
     }
 
@@ -148,8 +149,11 @@ class Case extends JPanel implements MouseListener {
     @Override
     public void mousePressed(MouseEvent e) {
         if (SwingUtilities.isLeftMouseButton(e)) {
+            System.out.println("leftClicked="+leftClicked);
             if (!leftClicked) {  
+                System.out.println("clicked countCase="+get_countCase());
                 if (get_countCase() == 0) {
+                    System.out.println("Got inside here first click?");
                     if(app.isServerOn()){
                         System.out.println("First click Client");
                         app.sendtoServer(row,col);
@@ -157,28 +161,27 @@ class Case extends JPanel implements MouseListener {
                         System.out.println("First click");
                         champ.init(row, col, champ.get_level());        
                         champ.display();  
-                    }
+                    }                    
                 } else {
                     if(app.isServerOn()){
                         //paintCaseServeur();
                         System.out.println("New click Client");
                         app.sendtoServer(row,col);
                     }                 
-                    
                 }
-                countCases(); 
-                
 
-                if (champ.nbMinesAround(row, col) == 0 && !app.isServerOn()) {
+                if (champ.nbMinesAround(row, col) == 0 && !app.isServerOn())
                     propagation(row, col);  // Propagate if zero mines around            
-                }
+                else
+                    countCases();
+                
 
                 leftClicked = true;  
                 rightClicked = false;
                 
                 repaint();
 
-                verifyGameStatus(gui);
+                verifyGameStatus(gui);                     
             }  
         } else if (SwingUtilities.isRightMouseButton(e)) {
             if (!leftClicked) {  
@@ -189,10 +192,12 @@ class Case extends JPanel implements MouseListener {
     }
 
     public void verifyGameStatus(Gui gui) {
-        if (champ.isMine(row, col)) 
-            champ.game_over(comp, app, gui, this);
-        if (countCase == freeCases())                   
+        if (champ.isMine(row, col))
+            champ.game_over(comp, app, gui, this);            
+        
+        if (countCase >= freeCases())
             champ.game_won(comp, app, gui, this);
+        
     }
 
     public int freeCases() {
@@ -231,6 +236,7 @@ class Case extends JPanel implements MouseListener {
         }
 
         countCases();
+        System.out.println("Count Propagation+"+get_countCase());
     }
 
     public void paintCaseServeur(int x, int y){

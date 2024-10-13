@@ -154,7 +154,7 @@ public class Champ implements Serializable {
     public void game_won(Compteur comp, App app, Gui gui, Case cas) {
           
         resetGame( gui, comp, cas);
-        
+        System.out.println("GAMEWON - countCase: "+cas.get_countCase());
         int choice = gui.showOptionDialog(cas, "You Won!", "Good Job", "info");
 
         if (choice == JOptionPane.YES_OPTION) 
@@ -167,7 +167,8 @@ public class Champ implements Serializable {
 
     public void game_over(Compteur comp, App app, Gui gui, Case cas) {
 
-        resetGame( gui, comp, cas);
+        resetGame(gui, comp, cas);
+        System.out.println("GAMEOVER - countCase: "+cas.get_countCase());
 
         int choice = gui.showOptionDialog(cas,  "Game Over","You're a Loser!", "Lose");
         
@@ -209,9 +210,7 @@ public class Champ implements Serializable {
         System.out.println("CHAMP CLIENT - It did setRevealed");
     }
 
-    void newPartie() {
-        //System.out.println("get_width()"+get_width());
-       // System.out.println("get_height()"+get_height());
+    public void newPartie() {
         tabMines = new boolean[get_width()][get_height()] ;  
         tabRevealed = new boolean[get_width()][get_height()];
     }
