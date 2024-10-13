@@ -239,16 +239,15 @@ class Case extends JPanel implements MouseListener {
         System.out.println("Count Propagation+"+get_countCase());
     }
 
-    public void paintCaseServeur(int x, int y){
-        Case currentCase = gui.getCase(x, y);
-        currentCase.leftClicked = true;
+    public void paintCaseServeur(Gui gu, Case cas, int x, int y){        
+        cas.leftClicked = true;
         champ.setRevealed(x, y);
 
         int minesAround = champ.nbMinesAround(x, y);
 
-        //currentCase.setBackground(Color.ORANGE);
-        currentCase.setTxt(Integer.toString(minesAround));
-        currentCase.repaint();
+        cas.setBackground(Color.ORANGE);
+        cas.setTxt(Integer.toString(minesAround));
+        cas.repaint();
     }
 
     public void mouseEntered(MouseEvent e) {}

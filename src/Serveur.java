@@ -122,6 +122,7 @@ public class Serveur implements Serializable {
 
         int x, y;
         // send champ
+        System.out.println("SERVEUR: First click?"+ get_firstClick());
         if(get_firstClick()){
             broadcastTabMines(champ);
             broadcastTabRevealed(champ);  
@@ -154,6 +155,7 @@ public class Serveur implements Serializable {
                     champ.display();
                     set_firstClick();
                     broadcastTabMines(champ);
+                    broadcastTabRevealed(champ);  
                     broadcastXY(x, y);                    
                 }else{
                     // send champ

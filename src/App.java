@@ -107,8 +107,11 @@ public class App extends JFrame {
     }
 
     public void setClientMines(boolean [][] mines){
+        System.out.println("APP - CLIENT before setingMines");
+        champ.display();
         champ.set_tabMines(mines);
         System.out.println("CLIENT - visualize champ:");
+        System.out.println("APP - CLIENT After setingMines");
         champ.display();
 
     }

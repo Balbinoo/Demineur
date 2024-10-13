@@ -24,7 +24,7 @@ public class Champ implements Serializable {
     //private Compteur compt;
     private int level = 0;
 
-    Random random = new Random();
+    public Random random = new Random();
 
     private int [] tabSize = {5,10,20} ;
     private int [] tabNMines = {4,15,40,30} ;
@@ -104,7 +104,7 @@ public class Champ implements Serializable {
         def_width = levelComboBox;
     }
 
-     void init(int startX, int startY, int level) {
+    public void init(int startX, int startY, int level) {
         //System.out.println("what level?"+level);
 
         //System.out.println("get_numeroMines(level)"+this.get_numeroMines(level));
@@ -122,7 +122,7 @@ public class Champ implements Serializable {
         System.out.println("INIT - Did it make to the end?");
     }
 
-    void display() {
+    public void display() {
 
         for (int i = 0; i < this.get_width(); i++) {
             for (int j = 0; j < this.get_height(); j++) {  
@@ -135,7 +135,7 @@ public class Champ implements Serializable {
         }
     }
 
-    int nbMinesAround(int x, int y) {
+    public int nbMinesAround(int x, int y) {
         int n = 0; 
         for (int i = x - 1; i <= x + 1; i++) {
             for (int j = y - 1; j <= y + 1; j++) {
@@ -200,7 +200,7 @@ public class Champ implements Serializable {
         return tabRevealed;
     }
 
-    public void set_tabMines(boolean [][]tabMinesFromServer){
+    public synchronized void set_tabMines(boolean [][]tabMinesFromServer){
         tabMines = tabMinesFromServer;
         System.out.println("CHAMP CLIENT - It did setMines");
     }

@@ -429,6 +429,8 @@ public class Gui extends JPanel implements ActionListener {
         if (row >= 0 && row < cas.length && col >= 0 && col < cas[0].length) {
             return cas[row][col]; 
         }
+
+        System.out.println("Não esta na condiçao do NULL!");
         return null;  
     }
 
@@ -443,14 +445,16 @@ public class Gui extends JPanel implements ActionListener {
     public void updateRevealedMines(boolean [][]tabRevealedFromServer){
 
         System.out.println("CLIENT - Did it get inside updateReveal?");
-
-        Case current;
-        for( int i =0; i < champ.get_width(); i++){
+        System.out.println("width"+champ.get_width());
+        System.out.println("height"+champ.get_height());
+         //current;
+        for( int i = 0; i < champ.get_width(); i++){
             for(int j = 0; j < champ.get_height(); j++){
-                System.out.print(tabRevealedFromServer[i][j]+ " ");
-                if(tabRevealedFromServer[i][j]){
-                    current = getCase(i, j);
-                    current.paintCaseServeur(i,j);
+                System.out.print(tabRevealedFromServer[i][j]+""+i+""+j+" ");
+                if(tabRevealedFromServer[i][j]){                    
+                    Case current = cas[i][j];
+                    current.paintCaseServeur(this,current,i,j);                                         
+                    //cas[i][j].paintCaseServeur(this,i,j);                                        
                 }
             }
             System.out.println(" ");
@@ -459,7 +463,7 @@ public class Gui extends JPanel implements ActionListener {
 
     public void updatePaintXY(int row, int col){
         Case current = getCase(row, col);
-        current.paintCaseServeur(row,col);
+        current.paintCaseServeur(this,current,row,col);
     }
 
 }
