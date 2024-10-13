@@ -55,8 +55,14 @@ public class App extends JFrame {
     }
 
     public void newPartie (int level, Compteur comp) {
-        comp.resetScore();
-        comp.startCompteurBackground(gui);
+        
+        if(!isServerOn()){
+            System.out.println(("ServerON? "+isServerOn()));            
+            comp.resetScore();
+            comp.startCompteurBackground(gui);
+        }
+            
+
         champ.set_level(level);
 
         champ.set_height(level);
@@ -96,6 +102,10 @@ public class App extends JFrame {
 
     public void setServerOn(){
         serverOn = true;
+    }
+
+    public void setServerOff(){
+        serverOn = false;
     }
 
     public boolean isServerOn(){

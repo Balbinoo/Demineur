@@ -149,6 +149,7 @@ public class Gui extends JPanel implements ActionListener {
     
     public void actionButtonBack(){
         // Reset the score and the GUI
+        app.setServerOff();
         resetGui();
         // remove panelMines, add panel North and panel Centre
         remove(panelLeft);
@@ -167,11 +168,10 @@ public class Gui extends JPanel implements ActionListener {
 
     public void actionButtonConnexionSubmit() {
         String playerName = nameField.getText();
+
         if (!playerName.isEmpty()) {
-            app.connectPlayer(playerName);
-    
-            System.out.println("Gui - Player name submitted: " + playerName);
-    
+            app.connectPlayer(playerName);    
+            System.out.println("Gui - Player name submitted: " + playerName);    
             // Start a new game if this method is intended to do so
             actionButtonNew();
         }
@@ -187,10 +187,12 @@ public class Gui extends JPanel implements ActionListener {
         playerNamesArea.setText("");  
 
         // Append the new player name to the JTextArea
+        playerNamesArea.setPreferredSize(new Dimension(10, 10)); // Adjust width & height as needed
         playerNamesArea.setText(joiner.toString());
         playerNamesArea.setEditable(false);  
 
         // Add playerNamesArea to panelLeft and update it
+        panelLeft.setPreferredSize(new Dimension(220, 100));  // Adjust as needed
         panelLeft.add(playerNamesArea);  
         panelLeft.revalidate();
         panelLeft.repaint();
@@ -293,7 +295,8 @@ public class Gui extends JPanel implements ActionListener {
     
         // Add the input panel to the center of the window
         remove(panelCentre); 
-        remove(panelNorth);
+        //remove(panelNorth);
+        panelNorth.remove(levelComboBox);
         add(panelInput, BorderLayout.CENTER);
         revalidate();
         repaint();
@@ -447,14 +450,13 @@ public class Gui extends JPanel implements ActionListener {
         System.out.println("CLIENT - Did it get inside updateReveal?");
         System.out.println("width"+champ.get_width());
         System.out.println("height"+champ.get_height());
-         //current;
+         
         for( int i = 0; i < champ.get_width(); i++){
             for(int j = 0; j < champ.get_height(); j++){
                 System.out.print(tabRevealedFromServer[i][j]+""+i+""+j+" ");
                 if(tabRevealedFromServer[i][j]){                    
                     Case current = cas[i][j];
                     current.paintCaseServeur(this,current,i,j);                                         
-                    //cas[i][j].paintCaseServeur(this,i,j);                                        
                 }
             }
             System.out.println(" ");

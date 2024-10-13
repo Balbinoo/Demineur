@@ -48,6 +48,11 @@ public class Compteur implements Runnable {
         return score;
     }
 
+    public void addScore(Gui gui) {
+        score++;
+        gui.setLabelScore(getScore());           
+    }
+
     public int resetScore() {
         return score=0;
     }

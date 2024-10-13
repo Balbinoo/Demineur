@@ -149,11 +149,9 @@ class Case extends JPanel implements MouseListener {
     @Override
     public void mousePressed(MouseEvent e) {
         if (SwingUtilities.isLeftMouseButton(e)) {
-            System.out.println("leftClicked="+leftClicked);
             if (!leftClicked) {  
-                System.out.println("clicked countCase="+get_countCase());
                 if (get_countCase() == 0) {
-                    System.out.println("Got inside here first click?");
+
                     if(app.isServerOn()){
                         System.out.println("First click Client");
                         app.sendtoServer(row,col);
@@ -164,16 +162,18 @@ class Case extends JPanel implements MouseListener {
                     }                    
                 } else {
                     if(app.isServerOn()){
-                        //paintCaseServeur();
                         System.out.println("New click Client");
                         app.sendtoServer(row,col);
                     }                 
                 }
 
-                if (champ.nbMinesAround(row, col) == 0 && !app.isServerOn())
+                if (champ.nbMinesAround(row, col) == 0 && !app.isServerOn()){
                     propagation(row, col);  // Propagate if zero mines around            
-                else
+                } else {
                     countCases();
+                    comp.addScore(gui);
+                }
+                    
                 
 
                 leftClicked = true;  
