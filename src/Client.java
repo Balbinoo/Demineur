@@ -70,7 +70,6 @@ public class Client implements Serializable {
     Client(App app, Gui gui) {
         this.app = app;
         this.gui = gui;
-        System.out.println("Client created");
     }
 
     public void connectServerBackground() {
@@ -97,9 +96,8 @@ public class Client implements Serializable {
     public void receiveBroadcast(ObjectInputStream in) {
         receiving = true;
         while (receiving) {
-            System.out.println("CLIENT - Inside BroadCast loop");
             try {
-                Object message = in.readObject(); // Read the incoming object
+                Object message = in.readObject();
                 
                 if (message instanceof MessageType) {
                     MessageType messageType = (MessageType) message;
@@ -111,18 +109,15 @@ public class Client implements Serializable {
                         case PLAYER_NUMBER:
                             playerNumero = (Integer) in.readObject();
                             this.setPlayerNumero(playerNumero);
-                            System.out.println("CLIENT - numero = " + playerNumero);
                             break;
                         case PLAYER_CHAMP:
                             boolean [][] mines = new boolean[5][5];
                             mines = (boolean[][]) in.readObject();
-                            System.out.println("CLIENT - champ reçu!");
                             app.setClientMines(mines);
                             break;
                         case PLAYER_REVEALED:
                             boolean [][] revealed = new boolean[5][5];
                             revealed = (boolean[][]) in.readObject();
-                            System.out.println("CLIENT - revealed reçu!");
                             app.setClientRevealed(revealed);
                         break;
                         case PLAYER_XY:
@@ -130,13 +125,10 @@ public class Client implements Serializable {
                             app.setUpdateClientXY(xy.get(0), xy.get(1));
                         break;
                         case GAME_OVER:
-                            System.out.println("CLIENT - GAMEOVER");
                             int[] scorePlayersLost = (int[]) in.readObject();
                             showScores("Game Over", scorePlayersLost);
                         break;
-                
                         case GAME_WON:
-                            System.out.println("CLIENT - GAMEWON");
                             int[] scorePlayersWon = (int[]) in.readObject();
                             showScores("Game Won", scorePlayersWon);
                         break;
@@ -162,16 +154,15 @@ public class Client implements Serializable {
         for (int i = 0; i < playerNames.size(); i++) {
             String name = playerNames.get(i);
             infoMessage.append(name).append(" : ").append(scores[j]).append("\n");
-            System.out.println("player = "+ name+ " score="+scores[j]);
             j++;
         }
     
         // Show the scores in a JOptionPane
         JOptionPane.showMessageDialog(null, infoMessage.toString(), title, JOptionPane.INFORMATION_MESSAGE);
+        app.quit();
     }
 
     public void sendPlayerName() {
-        //System.out.println("Client = Sending player name to server: " + this.getPlayerName());
         try {
             this.out.writeObject(this.getPlayerName());
             this.out.flush();
@@ -181,8 +172,6 @@ public class Client implements Serializable {
     }
 
     public void sendClickXY(int row, int col){
-        System.out.println("Client = player Click row: " + row + " col: " + col);
-
         List<Integer>xy = new ArrayList<Integer>();
         xy.add(row);
         xy.add(col);

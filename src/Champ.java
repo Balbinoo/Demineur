@@ -105,21 +105,17 @@ public class Champ implements Serializable {
     }
 
     public void init(int startX, int startY, int level) {
-        //System.out.println("what level?"+level);
 
-        //System.out.println("get_numeroMines(level)"+this.get_numeroMines(level));
+        for (int n = this.get_numeroMines(level) ; n != 0; ) {  
+            int x = random.nextInt(get_width());         
+            int y = random.nextInt(get_height());    
 
-            for (int n = this.get_numeroMines(level) ; n != 0; ) {  
-                int x = random.nextInt(get_width());         
-                int y = random.nextInt(get_height());    
-    
-                if (!(tabMines[x][y] || (x == startX && y == startY))) {
-                    tabMines[x][y] = true;
-                    n--;
-                }
+            if (!(tabMines[x][y] || (x == startX && y == startY))) {
+                tabMines[x][y] = true;
+                n--;
             }
+        }
 
-       // System.out.println("INIT - Did it make to the end?");
     }
 
     public void display() {
@@ -154,7 +150,7 @@ public class Champ implements Serializable {
     public void game_won(Compteur comp, App app, Gui gui, Case cas) {
           
         resetGame( gui, comp, cas);
-        //System.out.println("GAMEWON - countCase: "+cas.get_countCase());
+        
         int choice = gui.showOptionDialog(cas, "You Won!", "Good Job", "info");
 
         if (choice == JOptionPane.YES_OPTION) 
@@ -168,7 +164,7 @@ public class Champ implements Serializable {
     public void game_over(Compteur comp, App app, Gui gui, Case cas) {
 
         resetGame(gui, comp, cas);
-       // System.out.println("GAMEOVER - countCase: "+cas.get_countCase());
+       
 
         if(app.isServerOn()){
             System.out.println("GAMEOVER - ALL PLAYERS");
@@ -205,12 +201,10 @@ public class Champ implements Serializable {
 
     public synchronized void set_tabMines(boolean [][]tabMinesFromServer){
         tabMines = tabMinesFromServer;
-        //System.out.println("CHAMP CLIENT - It did setMines");
     }
 
     public void set_tabRevealed(boolean [][]tabRevealedFromServer){
         tabRevealed = tabRevealedFromServer;
-        //System.out.println("CHAMP CLIENT - It did setRevealed");
     }
 
     public void newPartie() {

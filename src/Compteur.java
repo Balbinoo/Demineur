@@ -1,11 +1,8 @@
 public class Compteur implements Runnable {
     private boolean running;      
     private int score;            
-    private int nbJoueurs;        
-    private Thread thread;  // Reference to the thread running this Compteur
-
-    Compteur(int nbJoueurs) {
-        this.nbJoueurs = nbJoueurs;  
+    private Thread thread;  
+    Compteur() {
         this.score = 0;              
         this.running = false;        
     }

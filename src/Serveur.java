@@ -27,7 +27,6 @@ public class Serveur implements Serializable {
     private ObjectOutputStream out;
 
     Serveur(App ap,Champ champ, Case ca) {
-        System.out.println("Démarrage du serveur"); 
         this.app = ap;
         this.listening = false;
         this.receiving = false;
@@ -119,10 +118,7 @@ public class Serveur implements Serializable {
                 nbPlayer++;
                 listConexions[nbPlayer] = new Thread(() -> handleClient(nbPlayer, socket, out, in));
                 listConexions[nbPlayer].start();
-                
-                //count_nbJoueur(); // Increment only after starting the thread
-                // Broadcast updated player list to all connected clients
-                //broadcastPlayerNames(outputs);
+            
             }
         } catch (IOException | ClassNotFoundException e) {
             System.out.println("SERVEUR = Exception occurred: " + e.getMessage());
@@ -132,42 +128,30 @@ public class Serveur implements Serializable {
 
     public void handleClient(int nbPlayer, Socket socket, ObjectOutputStream out, ObjectInputStream in) {
 
-        System.out.println("nbPlayer="+nbPlayer);
-
         int x, y;
-        // send champ
-        //System.out.println("SERVEUR: First click?"+ get_firstClick());
+
         if(get_firstClick()){
             broadcastTabMines(champ);
             broadcastTabRevealed(champ);  
         }
             
         try {
-            // Send the player number
             out.reset();
             out.writeObject(MessageType.PLAYER_NUMBER);
             out.writeObject(nbPlayer);
-            out.flush();
-            //System.out.println("SERVEUR - apres d'envoyer numero "+get_nbJoueur());
+            out.flush();            
             receiving = true;
 
             while (receiving) {
-                //System.out.println("SERVEUR - Inside loop receiving");
-
-                // Receive player click
                 List<Integer>xy =  (List<Integer>)in.readObject();
                 x = xy.get(0);
                 y = xy.get(1);
                 champ.setRevealed(x, y);
-                System.out.println(" nbPlayer=" + nbPlayer);
                 countScorePlayer(nbPlayer);
-                System.out.println("ScorePlayer:"+ nbPlayer +" : "+getScorePlayer(nbPlayer));
-                System.out.println("SERVEUR x="+x + " y="+y);
 
                 if(!firstClick){
                     // initialize server
-                    champ.init(x, y, 0);
-                    System.out.println("SERVEUR - visualize champ:");
+                    champ.init(x, y, champ.get_level());
                     champ.display();
                     set_firstClick();
                     broadcastTabMines(champ);
@@ -179,27 +163,12 @@ public class Serveur implements Serializable {
                 }
 
                 setCases();
-                System.out.println("get_countCase() "+getCases());
-                System.out.println("ca.freeCases()"+ ca.freeCases());
 
                 if(champ.isMine(x, y)){
                     unCountScorePlayer(nbPlayer);
-                    System.out.println("Stepped in a mine!");
-                    System.out.println("Score:");
-                    int j=0;
-                    for (int i = 1; i <= playerNames.size(); i++) {
-                        String name = playerNames.get(j++);
-                        System.out.println(name + " : " + getScorePlayer(i));
-                    }
                     broadcastEndGame(gameWon = false);
                     receiving = false;
                 } else if(getCases() >= ca.freeCases()){
-                    System.out.println("Game won!!");
-                    int j=0;
-                    for (int i = 1; i <= playerNames.size(); i++) {
-                        String name = playerNames.get(j++);
-                        System.out.println(name + " : " + getScorePlayer(i));
-                    }
                     broadcastEndGame(gameWon = true);
                     receiving = false;                    
                 }
@@ -241,7 +210,6 @@ public class Serveur implements Serializable {
     }
 
     public void broadcastXY(int row, int col) {
-        System.out.println("SERVEUR - Sending X et Y");
         List<Integer>xy = new ArrayList<Integer>();
         xy.add(row);
         xy.add(col);

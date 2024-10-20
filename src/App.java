@@ -26,7 +26,7 @@ public class App extends JFrame {
 
      App() {
         super("Demineur");
-        compt = new Compteur(1);  
+        compt = new Compteur();  
         champ = new Champ();
         cas = new Case();
         
@@ -34,7 +34,6 @@ public class App extends JFrame {
         gui = new Gui(serv, cas, compt, champ, this);
         cli = new Client(this, gui);
 
-        //serv.main(null);
         revalidate();  
         repaint();     
         setContentPane(gui);
@@ -56,8 +55,7 @@ public class App extends JFrame {
 
     public void newPartie (int level, Compteur comp) {
         
-        if(!isServerOn()){
-            System.out.println(("ServerON? "+isServerOn()));            
+        if(!isServerOn()){   
             comp.resetScore();
             comp.startCompteurBackground(gui);
         }
@@ -117,13 +115,7 @@ public class App extends JFrame {
     }
 
     public void setClientMines(boolean [][] mines){
-        System.out.println("APP - CLIENT before setingMines");
-        champ.display();
         champ.set_tabMines(mines);
-        System.out.println("CLIENT - visualize champ:");
-        System.out.println("APP - CLIENT After setingMines");
-        champ.display();
-
     }
 
     public void setClientRevealed(boolean [][] revealed){
@@ -132,7 +124,6 @@ public class App extends JFrame {
     }
     
     public void setUpdateClientXY(int row, int col){
-        System.out.println("CLIENT broadcast - row:"+ row + " Col:"+col);
         gui.updatePaintXY(row,col);
     }
 
