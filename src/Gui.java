@@ -452,7 +452,7 @@ public class Gui extends JPanel implements ActionListener {
             return cas[row][col]; 
         }
 
-        System.out.println("Não esta na condiçao do NULL!");
+        //System.out.println("Não esta na condiçao do NULL!");
         return null;  
     }
 
@@ -470,9 +470,9 @@ public class Gui extends JPanel implements ActionListener {
 
     public void updateRevealedMines(boolean [][]tabRevealedFromServer){
 
-        System.out.println("CLIENT - Did it get inside updateReveal?");
-        System.out.println("width"+champ.get_width());
-        System.out.println("height"+champ.get_height());
+       // System.out.println("CLIENT - Did it get inside updateReveal?");
+        //System.out.println("width"+champ.get_width());
+        //System.out.println("height"+champ.get_height());
          
         for( int i = 0; i < champ.get_width(); i++){
             for(int j = 0; j < champ.get_height(); j++){

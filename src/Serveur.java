@@ -7,14 +7,16 @@ import java.io.*;
 public class Serveur implements Serializable {
     private final long serialVersionUID = 1L; 
     private static boolean firstClick = false;
-    private int nbJoeur = 0;
+    private static int cases;
+    private int nbPlayer = 0;
     private Thread listenConexions, listenClient;
     private boolean listening, receiving;
     private Champ champ;
     private App app;
     private Gui gui;
+    private static boolean gameWon=false;
     private Case ca;
-    private int[] scorePlayers = new int[20];
+    private static int[] scorePlayers = new int[20];
     private Thread[] listConexions = new Thread[10];  // Initialize with an expected size
     private List<String> playerNames = new ArrayList<>();
     private List<Socket> clientSockets = new ArrayList<>();  // Thread-safe list
@@ -30,26 +32,34 @@ public class Serveur implements Serializable {
         this.listening = false;
         this.receiving = false;
         this.champ = champ;
+        this.nbPlayer = 0;
 
         this.ca = ca;
         startServerInBackground(); 
     }
 
     public int get_nbJoueur(){
-        return nbJoeur;
+        return this.nbPlayer;
+    }
+
+    public static void setCases()
+    {
+        cases++;
+    }
+
+    public static int getCases()
+    {
+        return cases;
     }
 
     public void count_nbJoueur(){
-        nbJoeur++;
+        nbPlayer++;
     }
 
     public void uncount_nbJoueur(){
-        nbJoeur--;
+        nbPlayer--;
     }
 
-    public void reset_nbJoueur(){
-        nbJoeur++;
-    }
 
     public boolean get_firstClick(){
         return firstClick;
@@ -59,19 +69,19 @@ public class Serveur implements Serializable {
         firstClick = true;
     }
 
-    public void countScorePlayer(int player){
+    public static void countScorePlayer(int player){
         scorePlayers[player]++;
     }
 
-    public void unCountScorePlayer(int player){
+    public static void unCountScorePlayer(int player){
         scorePlayers[player]--;
     }
 
-    public int getScorePlayer(int player){
-        return  scorePlayers[player];
+    public static int getScorePlayer(int player){
+        return scorePlayers[player];
     }
 
-    public int[] getAllScorePlayers(){
+    public static int[] getAllScorePlayers(){
         return scorePlayers;
     }
 
@@ -106,10 +116,11 @@ public class Serveur implements Serializable {
                 
                 broadcastPlayerNames();
 
-                listConexions[get_nbJoueur()] = new Thread(() -> handleClient(get_nbJoueur(), socket, out, in));
-                listConexions[get_nbJoueur()].start();
-
-                count_nbJoueur(); // Increment only after starting the thread
+                nbPlayer++;
+                listConexions[nbPlayer] = new Thread(() -> handleClient(nbPlayer, socket, out, in));
+                listConexions[nbPlayer].start();
+                
+                //count_nbJoueur(); // Increment only after starting the thread
                 // Broadcast updated player list to all connected clients
                 //broadcastPlayerNames(outputs);
             }
@@ -119,11 +130,13 @@ public class Serveur implements Serializable {
         }
     }
 
-    public void handleClient(int nbJouer, Socket socket, ObjectOutputStream out, ObjectInputStream in) {
+    public void handleClient(int nbPlayer, Socket socket, ObjectOutputStream out, ObjectInputStream in) {
+
+        System.out.println("nbPlayer="+nbPlayer);
 
         int x, y;
         // send champ
-        System.out.println("SERVEUR: First click?"+ get_firstClick());
+        //System.out.println("SERVEUR: First click?"+ get_firstClick());
         if(get_firstClick()){
             broadcastTabMines(champ);
             broadcastTabRevealed(champ);  
@@ -133,21 +146,22 @@ public class Serveur implements Serializable {
             // Send the player number
             out.reset();
             out.writeObject(MessageType.PLAYER_NUMBER);
-            out.writeObject(get_nbJoueur());
+            out.writeObject(nbPlayer);
             out.flush();
-            System.out.println("SERVEUR - apres d'envoyer numero "+get_nbJoueur());
+            //System.out.println("SERVEUR - apres d'envoyer numero "+get_nbJoueur());
             receiving = true;
 
             while (receiving) {
-                System.out.println("SERVEUR - Inside loop receiving");
+                //System.out.println("SERVEUR - Inside loop receiving");
 
                 // Receive player click
                 List<Integer>xy =  (List<Integer>)in.readObject();
                 x = xy.get(0);
                 y = xy.get(1);
                 champ.setRevealed(x, y);
-                countScorePlayer(get_nbJoueur());
-                System.out.println("ScorePlayer:"+get_nbJoueur()+" : "+getScorePlayer(get_nbJoueur()));
+                System.out.println(" nbPlayer=" + nbPlayer);
+                countScorePlayer(nbPlayer);
+                System.out.println("ScorePlayer:"+ nbPlayer +" : "+getScorePlayer(nbPlayer));
                 System.out.println("SERVEUR x="+x + " y="+y);
 
                 if(!firstClick){
@@ -164,8 +178,12 @@ public class Serveur implements Serializable {
                     broadcastXY(x, y);
                 }
 
+                setCases();
+                System.out.println("get_countCase() "+getCases());
+                System.out.println("ca.freeCases()"+ ca.freeCases());
+
                 if(champ.isMine(x, y)){
-                    unCountScorePlayer(get_nbJoueur());
+                    unCountScorePlayer(nbPlayer);
                     System.out.println("Stepped in a mine!");
                     System.out.println("Score:");
                     int j=0;
@@ -173,8 +191,17 @@ public class Serveur implements Serializable {
                         String name = playerNames.get(j++);
                         System.out.println(name + " : " + getScorePlayer(i));
                     }
-                    broadcastGameOver();
+                    broadcastEndGame(gameWon = false);
                     receiving = false;
+                } else if(getCases() >= ca.freeCases()){
+                    System.out.println("Game won!!");
+                    int j=0;
+                    for (int i = 1; i <= playerNames.size(); i++) {
+                        String name = playerNames.get(j++);
+                        System.out.println(name + " : " + getScorePlayer(i));
+                    }
+                    broadcastEndGame(gameWon = true);
+                    receiving = false;                    
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
@@ -234,13 +261,13 @@ public class Serveur implements Serializable {
         }
     }
 
-    public void broadcastGameOver() {
+    public void broadcastEndGame(boolean gameWon) {
 
         synchronized (outputs) {
             for (ObjectOutputStream out : outputs) {
                 try {
                     out.reset();
-                    out.writeObject(MessageType.GAME_OVER);
+                    out.writeObject(gameWon?MessageType.GAME_WON: MessageType.GAME_OVER);
                     out.writeObject(getAllScorePlayers());
                     out.flush();
                     out.flush();   

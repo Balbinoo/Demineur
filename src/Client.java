@@ -131,23 +131,18 @@ public class Client implements Serializable {
                         break;
                         case GAME_OVER:
                             System.out.println("CLIENT - GAMEOVER");
-                            int[] scorePlayers = (int[]) in.readObject();
-
-                            // Build the message string for the JOptionPane
-                            StringBuilder infoMessage = new StringBuilder("Scores:\n");
-                            int j=0;
-                            for (int i = 1; i <= playerNames.size(); i++) {
-                                String name = playerNames.get(j++);
-                                infoMessage.append(name).append(" : ").append(scorePlayers[i]).append("\n");
-                            }
-
-                            // Show the scores in a JOptionPane
-                            JOptionPane.showMessageDialog(null, infoMessage.toString(), "Game Over", JOptionPane.INFORMATION_MESSAGE);
+                            int[] scorePlayersLost = (int[]) in.readObject();
+                            showScores("Game Over", scorePlayersLost);
                         break;
-                        
+                
+                        case GAME_WON:
+                            System.out.println("CLIENT - GAMEWON");
+                            int[] scorePlayersWon = (int[]) in.readObject();
+                            showScores("Game Won", scorePlayersWon);
+                        break;
                         default:
                             System.out.println("CLIENT - Unknown message type: " + messageType);
-                            break;
+                        break;
                     }
                 }
     
@@ -160,8 +155,23 @@ public class Client implements Serializable {
         }
     }
 
+    private void showScores(String title, int[] scores) {
+        // Build the message string for the JOptionPane
+        int j = 1;
+        StringBuilder infoMessage = new StringBuilder("Scores:\n");
+        for (int i = 0; i < playerNames.size(); i++) {
+            String name = playerNames.get(i);
+            infoMessage.append(name).append(" : ").append(scores[j]).append("\n");
+            System.out.println("player = "+ name+ " score="+scores[j]);
+            j++;
+        }
+    
+        // Show the scores in a JOptionPane
+        JOptionPane.showMessageDialog(null, infoMessage.toString(), title, JOptionPane.INFORMATION_MESSAGE);
+    }
+
     public void sendPlayerName() {
-        System.out.println("Client = Sending player name to server: " + this.getPlayerName());
+        //System.out.println("Client = Sending player name to server: " + this.getPlayerName());
         try {
             this.out.writeObject(this.getPlayerName());
             this.out.flush();

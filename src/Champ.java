@@ -119,7 +119,7 @@ public class Champ implements Serializable {
                 }
             }
 
-        System.out.println("INIT - Did it make to the end?");
+       // System.out.println("INIT - Did it make to the end?");
     }
 
     public void display() {
@@ -154,7 +154,7 @@ public class Champ implements Serializable {
     public void game_won(Compteur comp, App app, Gui gui, Case cas) {
           
         resetGame( gui, comp, cas);
-        System.out.println("GAMEWON - countCase: "+cas.get_countCase());
+        //System.out.println("GAMEWON - countCase: "+cas.get_countCase());
         int choice = gui.showOptionDialog(cas, "You Won!", "Good Job", "info");
 
         if (choice == JOptionPane.YES_OPTION) 
@@ -168,7 +168,7 @@ public class Champ implements Serializable {
     public void game_over(Compteur comp, App app, Gui gui, Case cas) {
 
         resetGame(gui, comp, cas);
-        System.out.println("GAMEOVER - countCase: "+cas.get_countCase());
+       // System.out.println("GAMEOVER - countCase: "+cas.get_countCase());
 
         if(app.isServerOn()){
             System.out.println("GAMEOVER - ALL PLAYERS");
@@ -205,12 +205,12 @@ public class Champ implements Serializable {
 
     public synchronized void set_tabMines(boolean [][]tabMinesFromServer){
         tabMines = tabMinesFromServer;
-        System.out.println("CHAMP CLIENT - It did setMines");
+        //System.out.println("CHAMP CLIENT - It did setMines");
     }
 
     public void set_tabRevealed(boolean [][]tabRevealedFromServer){
         tabRevealed = tabRevealedFromServer;
-        System.out.println("CHAMP CLIENT - It did setRevealed");
+        //System.out.println("CHAMP CLIENT - It did setRevealed");
     }
 
     public void newPartie() {

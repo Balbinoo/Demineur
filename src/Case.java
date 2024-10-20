@@ -58,7 +58,7 @@ class Case extends JPanel implements MouseListener {
     }
 
     public void countCases() {
-        System.out.println("Entrou aqui quando?");
+        //System.out.println("Entrou aqui quando?");
         countCase++;
     }
 
@@ -153,16 +153,16 @@ class Case extends JPanel implements MouseListener {
                 if (get_countCase() == 0) {
 
                     if(app.isServerOn()){
-                        System.out.println("First click Client");
+                        //System.out.println("First click Client");
                         app.sendtoServer(row,col);
                     }else{
-                        System.out.println("First click");
+                        //System.out.println("First click");
                         champ.init(row, col, champ.get_level());        
                         champ.display();  
                     }                    
                 } else {
                     if(app.isServerOn()){
-                        System.out.println("New click Client");
+                        //System.out.println("New click Client");
                         app.sendtoServer(row,col);
                     }                 
                 }
@@ -234,7 +234,7 @@ class Case extends JPanel implements MouseListener {
         }
 
         countCases();
-        System.out.println("Count Propagation+"+get_countCase());
+        //System.out.println("Count Propagation+"+get_countCase());
     }
 
     public void paintCaseServeur(Gui gu, Case cas, int x, int y){        
